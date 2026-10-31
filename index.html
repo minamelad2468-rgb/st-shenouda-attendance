@@ -346,7 +346,6 @@ async function createStaff() {
   } catch (error) {
     message("تعذر الاتصال، حاول مرة أخرى", true);
   }
-}
 
 async function loadMembers() {
   const list = document.getElementById("membersList");
@@ -354,26 +353,71 @@ async function loadMembers() {
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("full_name, phone, residential_area, role")
+    .select("full_name, phone, residential_area, education_or_age")
     .order("full_name");
 
   if (error) {
-    list.textContent = "مش قادرين نعرض الأعضاء: " + error.message;
+    list.textContent = "تعذر عرض الأعضاء: " + error.message;
     return;
   }
 
   list.replaceChildren();
 
-  data.forEach(member => {
-    const item = document.createElement("p");
-    item.textContent =
-      `${member.full_name} — ${member.phone || ""} — ${member.residential_area || ""}`;
-    list.appendChild(item);
-  });
-
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     list.textContent = "مفيش أعضاء مسجلين حتى الآن";
+    return;
   }
+
+  data.forEach(member => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      background: #f5f2fa;
+      border: 1px solid #e5dcef;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 14px 0;
+      text-align: right;
+      line-height: 1.8;
+    `;
+
+    const name = document.createElement("h3");
+    name.textContent = member.full_name || "بدون اسم";
+    name.style.color = "#59368a";
+    card.appendChild(name);
+
+    const fields = [
+      ["رقم الموبايل", member.phone],
+      ["العنوان", member.residential_area],
+      ["المرحلة الدراسية / السن", member.education_or_age]
+    ];
+
+    fields.forEach(([label, value]) => {
+      const row = document.createElement("div");
+      row.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        padding: 9px 12px;
+        margin: 7px 0;
+      `;
+
+      const title = document.createElement("strong");
+      title.textContent = label;
+
+      const content = document.createElement("div");
+      content.textContent = value || "غير مسجل";
+
+      row.appendChild(title);
+      row.appendChild(content);
+      card.appendChild(row);
+    });
+
+    list.appendChild(card);
+  });
+}
+  
+
+
 }
 
 async function startApp() {
