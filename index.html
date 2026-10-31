@@ -44,6 +44,31 @@
     .hidden { display: none; }
     #message { text-align: center; margin-top: 15px; line-height: 1.6; }
     .gold { color: #a88945; }
+
+    .member-card {
+      background: #f5f2fa;
+      border: 1px solid #e5dcef;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 14px 0;
+      text-align: right;
+      line-height: 1.8;
+    }
+    .member-card h3 {
+      color: #59368a;
+      margin-top: 0;
+    }
+    .member-field {
+      background: white;
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin: 7px 0;
+      overflow-wrap: anywhere;
+    }
+    .member-field strong {
+      display: block;
+      color: #59368a;
+    }
   </style>
 </head>
 <body>
@@ -75,6 +100,7 @@
     <section id="dashboard" class="hidden">
       <h3>أهلاً بيك ❤️</h3>
       <p id="memberName"></p>
+      <p id="memberEducation"></p>
       <p class="gold">St. Shenouda Attendance</p>
       <button onclick="checkIn()">تسجيل حضور الاجتماع</button>
       <button class="secondary" onclick="logout()">تسجيل الخروج</button>
@@ -110,11 +136,8 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_KEY
 );
 
-const FUNCTION_URL =
-  SUPABASE_URL + "/functions/v1/login-with-phone";
-
-const STAFF_FUNCTION_URL =
-  SUPABASE_URL + "/functions/v1/create-staff";
+const FUNCTION_URL = SUPABASE_URL + "/functions/v1/login-with-phone";
+const STAFF_FUNCTION_URL = SUPABASE_URL + "/functions/v1/create-staff";
 
 function message(text, error = false) {
   const el = document.getElementById("message");
@@ -123,10 +146,9 @@ function message(text, error = false) {
 }
 
 function hideAllSections() {
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("signup").classList.add("hidden");
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("staffDashboard").classList.add("hidden");
+  ["login", "signup", "dashboard", "staffDashboard"].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
 }
 
 function showLogin() {
@@ -233,12 +255,12 @@ async function loadProfile() {
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("full_name, role, is_active")
+    .select("full_name, role, is_active, education_or_age")
     .eq("id", user.id)
     .single();
 
   if (error) {
-    message("تم تسجيل الدخول، لكن تعذر تحميل بيانات الملف الشخصي.", true);
+    message("تعذر تحميل الملف الشخصي: " + error.message, true);
     return;
   }
 
@@ -251,6 +273,9 @@ async function loadProfile() {
 
   showDashboard(data.full_name);
 
+  document.getElementById("memberEducation").textContent =
+    "المرحلة الدراسية: " + (data.education_or_age || "غير مسجل");
+
   const staffRoles = [
     "system_admin",
     "servant_admin",
@@ -262,8 +287,10 @@ async function loadProfile() {
     document.getElementById("staffDashboard").classList.remove("hidden");
   }
 
-  const adminTools = document.getElementById("staffAdminTools");
-  adminTools.classList.toggle("hidden", data.role !== "system_admin");
+  document.getElementById("staffAdminTools").classList.toggle(
+    "hidden",
+    data.role !== "system_admin"
+  );
 
   message("تم تسجيل الدخول بنجاح ❤️");
 
@@ -344,80 +371,68 @@ async function createStaff() {
     document.getElementById("staffPhone").value = "";
     document.getElementById("staffPassword").value = "";
   } catch (error) {
-    message("تعذر الاتصال، حاول مرة أخرى", true);
+    message("تعذر الاتصال: " + error.message, true);
   }
+}
 
+/* عرض الأعضاء - دالة مستقلة */
 async function loadMembers() {
   const list = document.getElementById("membersList");
   list.textContent = "جاري تحميل الأعضاء...";
 
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("full_name, phone, residential_area, education_or_age")
-    .order("full_name");
+  try {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("full_name, phone, residential_area, education_or_age")
+      .order("full_name");
 
-  if (error) {
-    list.textContent = "تعذر عرض الأعضاء: " + error.message;
-    return;
-  }
+    if (error) throw error;
 
-  list.replaceChildren();
+    list.replaceChildren();
 
-  if (!data || data.length === 0) {
-    list.textContent = "مفيش أعضاء مسجلين حتى الآن";
-    return;
-  }
+    if (!data || data.length === 0) {
+      list.textContent = "مفيش أعضاء مسجلين حتى الآن";
+      return;
+    }
 
-  data.forEach(member => {
-    const card = document.createElement("div");
+    data.forEach(member => {
+      const card = document.createElement("div");
+      card.className = "member-card";
 
-    card.style.cssText = `
-      background: #f5f2fa;
-      border: 1px solid #e5dcef;
-      border-radius: 14px;
-      padding: 16px;
-      margin: 14px 0;
-      text-align: right;
-      line-height: 1.8;
-    `;
+      const name = document.createElement("h3");
+      name.textContent = member.full_name || "بدون اسم";
+      card.appendChild(name);
 
-    const name = document.createElement("h3");
-    name.textContent = member.full_name || "بدون اسم";
-    name.style.color = "#59368a";
-    card.appendChild(name);
+      const fields = [
+        ["رقم الموبايل", member.phone],
+        ["العنوان", member.residential_area],
+        ["المرحلة الدراسية / السن", member.education_or_age]
+      ];
 
-    const fields = [
-      ["رقم الموبايل", member.phone],
-      ["العنوان", member.residential_area],
-      ["المرحلة الدراسية / السن", member.education_or_age]
-    ];
+      fields.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "member-field";
 
-    fields.forEach(([label, value]) => {
-      const row = document.createElement("div");
-      row.style.cssText = `
-        background: white;
-        border-radius: 8px;
-        padding: 9px 12px;
-        margin: 7px 0;
-      `;
+        const title = document.createElement("strong");
+        title.textContent = label;
 
-      const title = document.createElement("strong");
-      title.textContent = label;
+        const content = document.createElement("div");
+        content.textContent = value || "غير مسجل";
 
-      const content = document.createElement("div");
-      content.textContent = value || "غير مسجل";
+        row.appendChild(title);
+        row.appendChild(content);
+        card.appendChild(row);
+      });
 
-      row.appendChild(title);
-      row.appendChild(content);
-      card.appendChild(row);
+      list.appendChild(card);
     });
 
-    list.appendChild(card);
-  });
-}
-  
+    message("تم عرض " + data.length + " عضو بنجاح ❤️");
 
-
+  } catch (error) {
+    list.textContent = "تعذر عرض الأعضاء: " + error.message;
+    message("حصل خطأ أثناء تحميل الأعضاء", true);
+  }
 }
 
 async function startApp() {
