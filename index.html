@@ -2,450 +2,519 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>St. Shenouda | الحضور</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f2fa;
-      color: #29213a;
-      padding: 24px 14px;
-    }
-    .container {
-      max-width: 430px;
-      margin: 30px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px #35205a15;
-    }
-    h1 { color: #59368a; text-align: center; }
-    .sub { text-align: center; color: #777; margin-bottom: 25px; }
-    input, button {
-      width: 100%;
-      padding: 14px;
-      margin: 8px 0;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-    input { border: 1px solid #ddd; }
-    button {
-      border: 0;
-      background: #59368a;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button.secondary { background: #eee8f5; color: #59368a; }
-    .hidden { display: none; }
-    #message { text-align: center; margin-top: 15px; line-height: 1.6; }
-    .gold { color: #a88945; }
-
-    .member-card {
-      background: #f5f2fa;
-      border: 1px solid #e5dcef;
-      border-radius: 14px;
-      padding: 16px;
-      margin: 14px 0;
-      text-align: right;
-      line-height: 1.8;
-    }
-    .member-card h3 {
-      color: #59368a;
-      margin-top: 0;
-    }
-    .member-field {
-      background: white;
-      border-radius: 8px;
-      padding: 9px 12px;
-      margin: 7px 0;
-      overflow-wrap: anywhere;
-    }
-    .member-field strong {
-      display: block;
-      color: #59368a;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>St. Shenouda | إدارة الأسرة</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f2fa;color:#29213a}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:10px;padding:12px 15px;background:#59368a;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#eee8f5;color:#59368a}
+button.danger{background:#b83232}
+input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:9px;background:white}
+textarea{min-height:75px;resize:vertical}
+.hidden{display:none!important}
+.container{max-width:1100px;margin:25px auto;padding:16px}
+.auth{max-width:440px;margin:45px auto;background:white;padding:25px;border-radius:18px;box-shadow:0 8px 30px #35205a15}
+h1,h2,h3{color:#59368a}
+h1{text-align:center}
+.sub{text-align:center;color:#777}
+#message{text-align:center;padding:10px;line-height:1.6;white-space:pre-wrap}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:16px}
+.sidebar,.panel,.stat{background:white;border-radius:15px;padding:17px;box-shadow:0 5px 20px #35205a0c}
+.sidebar button{width:100%;margin:5px 0;text-align:right}
+.sidebar .active{background:#a88945}
+.content{min-width:0}
+.page{display:none}
+.page.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:15px 0}
+.stat{text-align:center}
+.stat strong{display:block;font-size:25px;color:#59368a;margin-top:8px}
+.table-wrap{overflow-x:auto;background:white;border-radius:12px;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:650px}
+th,td{padding:12px;border-bottom:1px solid #eee;text-align:right}
+th{background:#f1ebf7;color:#59368a}
+tr:last-child td{border-bottom:0}
+.card{background:#f8f5fb;border:1px solid #e5dcef;border-radius:12px;padding:14px;margin:10px 0;line-height:1.8}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#eee8f5;color:#59368a;font-size:12px}
+.muted{color:#777;font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.toolbar>*{flex:1;min-width:130px}
+hr{border:0;border-top:1px solid #eee;margin:18px 0}
+@media(max-width:750px){
+ .layout{grid-template-columns:1fr}
+ .sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+ .sidebar h3{grid-column:1/-1}
+ .container{padding:9px}
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>St. Shenouda</h1>
-    <p class="sub">أسرة الأنبا شنودة رئيس المتوحدين</p>
 
-    <section id="login">
-      <h3>تسجيل الدخول</h3>
-      <input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel">
-      <input id="loginPassword" type="password" placeholder="كلمة المرور">
-      <button onclick="login()">دخول</button>
-      <button class="secondary" onclick="showSignup()">إنشاء حساب جديد</button>
-    </section>
+<!-- تسجيل الدخول -->
+<section id="authArea" class="auth">
+<h1>St. Shenouda</h1>
+<p class="sub">أسرة الأنبا شنودة رئيس المتوحدين</p>
 
-    <section id="signup" class="hidden">
-      <h3>إنشاء حساب جديد</h3>
-      <input id="fullName" placeholder="الاسم بالكامل">
-      <input id="phone" placeholder="رقم الموبايل" inputmode="tel">
-      <input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل">
-      <input id="code" placeholder="كود التفعيل">
-      <input id="birthDate" type="date" aria-label="تاريخ الميلاد">
-      <input id="education" placeholder="المرحلة الدراسية أو السن">
-      <input id="area" placeholder="منطقة السكن">
-      <button onclick="signup()">إنشاء الحساب</button>
-      <button class="secondary" onclick="showLogin()">رجوع لتسجيل الدخول</button>
-    </section>
+<div id="login">
+<h3>تسجيل الدخول</h3>
+<input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel">
+<input id="loginPassword" type="password" placeholder="كلمة المرور">
+<button onclick="login()">دخول</button>
+<button class="secondary" onclick="showSignup()">إنشاء حساب جديد</button>
+</div>
 
-    <section id="dashboard" class="hidden">
-      <h3>أهلاً بيك ❤️</h3>
-      <p id="memberName"></p>
-      <p id="memberEducation"></p>
-      <p class="gold">St. Shenouda Attendance</p>
-      <button onclick="checkIn()">تسجيل حضور الاجتماع</button>
-      <button class="secondary" onclick="logout()">تسجيل الخروج</button>
-    </section>
+<div id="signup" class="hidden">
+<h3>إنشاء حساب جديد</h3>
+<input id="fullName" placeholder="الاسم بالكامل">
+<input id="phone" placeholder="رقم الموبايل" inputmode="tel">
+<input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل">
+<input id="code" placeholder="كود التفعيل">
+<input id="birthDate" type="date" aria-label="تاريخ الميلاد">
+<input id="education" placeholder="المرحلة الدراسية أو السن">
+<input id="area" placeholder="منطقة السكن">
+<button onclick="signup()">إنشاء الحساب</button>
+<button class="secondary" onclick="showLogin()">رجوع</button>
+</div>
+<p id="authMessage"></p>
+</section>
 
-    <section id="staffDashboard" class="hidden">
-      <h2>لوحة الخدام</h2>
-      <p>إدارة ومتابعة الأسرة</p>
+<!-- التطبيق -->
+<main id="appArea" class="container hidden">
+<header class="panel">
+<h1>St. Shenouda</h1>
+<p class="sub">لوحة إدارة أسرة الأنبا شنودة رئيس المتوحدين</p>
+<div class="row">
+<div>
+<strong id="welcomeName"></strong>
+<div class="muted" id="welcomeRole"></div>
+</div>
+<button class="secondary" onclick="logout()">تسجيل الخروج</button>
+</div>
+<p id="message"></p>
+</header>
 
-      <div id="staffAdminTools" class="hidden">
-        <h3>إضافة خادم جديد</h3>
-        <input id="staffName" placeholder="اسم الخادم بالكامل">
-        <input id="staffPhone" placeholder="رقم الموبايل">
-        <input id="staffPassword" type="password" placeholder="كلمة المرور">
-        <button onclick="createStaff()">إضافة الخادم</button>
-        <hr>
-      </div>
+<div class="layout">
+<aside class="sidebar">
+<h3>القائمة الرئيسية</h3>
+<button class="nav active" data-page="home" onclick="openPage('home',this)">الرئيسية</button>
+<button class="nav" data-page="attendance" onclick="openPage('attendance',this)">الحضور والغياب</button>
+<button class="nav" data-page="members" onclick="openPage('members',this)">الأعضاء</button>
+<button class="nav" data-page="servants" onclick="openPage('servants',this)">الخدام</button>
+<button class="nav" data-page="reports" onclick="openPage('reports',this)">التقارير والإحصائيات</button>
+<button class="nav" data-page="followups" onclick="openPage('followups',this)">المتابعة</button>
+<button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)">أعياد الميلاد</button>
+</aside>
 
-      <h3>متابعة الأعضاء</h3>
-      <button onclick="loadMembers()">عرض الأعضاء</button>
-      <div id="membersList"></div>
-    </section>
+<div class="content">
 
-    <p id="message"></p>
-  </div>
+<!-- الرئيسية -->
+<section id="page-home" class="page active">
+<div class="panel">
+<h2>مرحباً بك ❤️</h2>
+<p>نظام إدارة ومتابعة الأسرة وتسجيل الحضور.</p>
+<div class="stats">
+<div class="stat">الأعضاء<strong id="homeMembers">—</strong></div>
+<div class="stat">الخدام<strong id="homeServants">—</strong></div>
+<div class="stat">حضور اليوم<strong id="homeAttendance">—</strong></div>
+</div>
+<button onclick="refreshAll()">تحديث البيانات</button>
+</div>
+</section>
+
+<!-- الحضور -->
+<section id="page-attendance" class="page">
+<div class="panel">
+<h2>الحضور والغياب</h2>
+<p class="muted">تحديث تلقائي كل 20 ثانية أثناء فتح الصفحة.</p>
+<div class="stats">
+<div class="stat">حضور الأعضاء<strong id="attMembers">—</strong></div>
+<div class="stat">غياب الأعضاء<strong id="absMembers">—</strong></div>
+<div class="stat">حضور الخدام<strong id="attServants">—</strong></div>
+<div class="stat">غياب الخدام<strong id="absServants">—</strong></div>
+</div>
+<p id="meetingInfo" class="muted"></p>
+<div class="toolbar">
+<button onclick="loadAttendance()">تحديث الحضور</button>
+</div>
+<h3>المسجل حضورهم</h3>
+<div id="presentList"></div>
+<h3>لم يسجلوا الحضور</h3>
+<div id="absentList"></div>
+</div>
+</section>
+
+<!-- الأعضاء -->
+<section id="page-members" class="page">
+<div class="panel">
+<h2>الأعضاء</h2>
+<div class="toolbar">
+<input id="memberSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderMembers()">
+<button onclick="loadPeople()">تحديث القائمة</button>
+</div>
+<div class="stats">
+<div class="stat">إجمالي الأعضاء<strong id="membersCount">—</strong></div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th><th>تعديل</th></tr></thead>
+<tbody id="membersTable"></tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- الخدام -->
+<section id="page-servants" class="page">
+<div class="panel">
+<h2>الخدام</h2>
+<div id="staffAdminTools" class="card hidden">
+<h3>إضافة خادم جديد</h3>
+<input id="staffName" placeholder="اسم الخادم بالكامل">
+<input id="staffPhone" placeholder="رقم الموبايل">
+<input id="staffPassword" type="password" placeholder="كلمة المرور">
+<button onclick="createStaff()">إضافة الخادم</button>
+<p class="muted">حسابات الخدام الجديدة تُنشأ بدور viewer من خلال دالة create-staff الحالية.</p>
+</div>
+<div class="toolbar">
+<input id="servantSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderServants()">
+<button onclick="loadPeople()">تحديث القائمة</button>
+</div>
+<div class="stats"><div class="stat">إجمالي الخدام<strong id="servantsCount">—</strong></div></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>تعديل</th></tr></thead>
+<tbody id="servantsTable"></tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- التقارير -->
+<section id="page-reports" class="page">
+<div class="panel">
+<h2>التقارير والإحصائيات</h2>
+<div class="toolbar">
+<select id="reportPeriod" onchange="renderReports()">
+<option value="all">كل الاجتماعات</option>
+<option value="month">الشهر الحالي</option>
+<option value="week">آخر 7 أيام</option>
+</select>
+<button onclick="loadReports()">تحديث التقارير</button>
+</div>
+<div class="stats">
+<div class="stat">حضور الأعضاء<strong id="reportMemberCount">—</strong></div>
+<div class="stat">نسبة حضور الأعضاء<strong id="reportMemberRate">—</strong></div>
+<div class="stat">حضور الخدام<strong id="reportServantCount">—</strong></div>
+<div class="stat">نسبة حضور الخدام<strong id="reportServantRate">—</strong></div>
+</div>
+<div id="reportDetails"></div>
+</div>
+</section>
+
+<!-- المتابعة -->
+<section id="page-followups" class="page">
+<div class="panel">
+<h2>متابعة الأعضاء</h2>
+<p class="muted">حالات المتابعة المعتمدة في النظام.</p>
+<div class="toolbar">
+<input id="followSearch" placeholder="بحث باسم العضو" oninput="renderFollowups()">
+<button onclick="loadFollowups()">تحديث</button>
+</div>
+<div id="followList"></div>
+</div>
+</section>
+
+<!-- أعياد الميلاد -->
+<section id="page-birthdays" class="page">
+<div class="panel">
+<h2>أعياد الميلاد القادمة</h2>
+<p class="muted">الأعضاء والخدام خلال الـ 30 يومًا القادمة.</p>
+<div id="birthdayList"></div>
+</div>
+</section>
+
+</div>
+</div>
+</main>
 
 <script>
-const SUPABASE_URL = "https://amrfujhlikbaubepiuye.supabase.co";
-const SUPABASE_KEY = "sb_publishable_nIsrayREACP6CFMtiYX1Yg_uRnWlHWu";
+const SUPABASE_URL="https://amrfujhlikbaubepiuye.supabase.co";
+const SUPABASE_KEY="sb_publishable_nIsrayREACP6CFMtiYX1Yg_uRnWlHWu";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
+const STAFF_FUNCTION_URL=SUPABASE_URL+"/functions/v1/create-staff";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const $=id=>document.getElementById(id);
+let currentProfile=null;
+let members=[],servants=[],meetings=[],attendance=[],followups=[];
+let refreshTimer=null;
 
-const FUNCTION_URL = SUPABASE_URL + "/functions/v1/login-with-phone";
-const STAFF_FUNCTION_URL = SUPABASE_URL + "/functions/v1/create-staff";
+const staffRoles=["system_admin","servant_admin","followup","viewer"];
+const followStatuses=["لم يتم التواصل","جاري المتابعة","تم التواصل","يحتاج متابعة مرة أخرى"];
 
-function message(text, error = false) {
-  const el = document.getElementById("message");
-  el.textContent = text;
-  el.style.color = error ? "#c0392b" : "#27834b";
+function msg(text,error=false){
+ $("message").textContent=text||"";
+ $("message").style.color=error?"#c0392b":"#27834b";
 }
-
-function hideAllSections() {
-  ["login", "signup", "dashboard", "staffDashboard"].forEach(id => {
-    document.getElementById(id).classList.add("hidden");
+function authMsg(text,error=false){
+ $("authMessage").textContent=text||"";
+ $("authMessage").style.color=error?"#c0392b":"#27834b";
+}
+function showLogin(){
+ $("login").classList.remove("hidden");
+ $("signup").classList.add("hidden");
+ authMsg("");
+}
+function showSignup(){
+ $("login").classList.add("hidden");
+ $("signup").classList.remove("hidden");
+ authMsg("");
+}
+function openPage(name,button){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ $("page-"+name).classList.add("active");
+ document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+ if(button)button.classList.add("active");
+ if(name==="attendance")loadAttendance();
+ if(name==="members"||name==="servants")loadPeople();
+ if(name==="reports")loadReports();
+ if(name==="followups")loadFollowups();
+ if(name==="birthdays")renderBirthdays();
+}
+async function callLoginFunction(data){
+ const response=await fetch(FUNCTION_URL,{
+  method:"POST",
+  headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY},
+  body:JSON.stringify(data)
+ });
+ const result=await response.json();
+ if(!response.ok||result.error)throw new Error(result.error||"تعذر تنفيذ العملية");
+ return result;
+}
+async function setSession(result){
+ await supabaseClient.auth.setSession({
+  access_token:result.session.access_token,
+  refresh_token:result.session.refresh_token
+ });
+ await loadProfile();
+}
+async function login(){
+ try{
+  authMsg("جاري تسجيل الدخول...");
+  const result=await callLoginFunction({
+   action:"login",
+   phone:$("loginPhone").value.trim(),
+   password:$("loginPassword").value
   });
+  await setSession(result);
+ }catch(e){authMsg(e.message,true);}
 }
-
-function showLogin() {
-  hideAllSections();
-  document.getElementById("login").classList.remove("hidden");
-  message("");
-}
-
-function showSignup() {
-  hideAllSections();
-  document.getElementById("signup").classList.remove("hidden");
-  message("");
-}
-
-function showDashboard(name) {
-  hideAllSections();
-  document.getElementById("dashboard").classList.remove("hidden");
-  document.getElementById("memberName").textContent = name || "عضو الأسرة";
-}
-
-async function callLoginFunction(data) {
-  const response = await fetch(FUNCTION_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_KEY,
-      "Authorization": "Bearer " + SUPABASE_KEY
-    },
-    body: JSON.stringify(data)
+async function signup(){
+ try{
+  authMsg("جاري إنشاء الحساب...");
+  const phone=$("phone").value.trim();
+  const password=$("password").value;
+  if(password.length<8)throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+  await callLoginFunction({
+   action:"signup",phone,password,
+   code:$("code").value.trim(),
+   full_name:$("fullName").value.trim(),
+   birth_date:$("birthDate").value||null,
+   education_or_age:$("education").value.trim(),
+   residential_area:$("area").value.trim()
   });
-
-  const result = await response.json();
-
-  if (!response.ok || result.error) {
-    throw new Error(result.error || "حصل خطأ، حاول مرة تانية");
-  }
-
-  return result;
+  const result=await callLoginFunction({action:"login",phone,password});
+  await setSession(result);
+ }catch(e){authMsg(e.message,true);}
 }
-
-async function login() {
-  try {
-    message("جاري تسجيل الدخول...");
-
-    const result = await callLoginFunction({
-      action: "login",
-      phone: document.getElementById("loginPhone").value.trim(),
-      password: document.getElementById("loginPassword").value
-    });
-
-    await supabaseClient.auth.setSession({
-      access_token: result.session.access_token,
-      refresh_token: result.session.refresh_token
-    });
-
-    await loadProfile();
-  } catch (error) {
-    message(error.message, true);
-  }
-}
-
-async function signup() {
-  try {
-    message("جاري إنشاء الحساب...");
-
-    const phone = document.getElementById("phone").value.trim();
-    const password = document.getElementById("password").value;
-
-    await callLoginFunction({
-      action: "signup",
-      phone,
-      password,
-      code: document.getElementById("code").value.trim(),
-      full_name: document.getElementById("fullName").value.trim(),
-      birth_date: document.getElementById("birthDate").value || null,
-      education_or_age: document.getElementById("education").value.trim(),
-      residential_area: document.getElementById("area").value.trim()
-    });
-
-    const result = await callLoginFunction({
-      action: "login",
-      phone,
-      password
-    });
-
-    await supabaseClient.auth.setSession({
-      access_token: result.session.access_token,
-      refresh_token: result.session.refresh_token
-    });
-
-    await loadProfile();
-  } catch (error) {
-    message(error.message, true);
-  }
-}
-
-async function loadProfile() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-
-  if (!user) {
-    showLogin();
-    return;
-  }
-
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("full_name, role, is_active, education_or_age")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    message("تعذر تحميل الملف الشخصي: " + error.message, true);
-    return;
-  }
-
-  if (!data.is_active) {
-    await supabaseClient.auth.signOut();
-    showLogin();
-    message("هذا الحساب غير نشط. تواصل مع الإدارة.", true);
-    return;
-  }
-
-  showDashboard(data.full_name);
-
-  document.getElementById("memberEducation").textContent =
-    "المرحلة الدراسية: " + (data.education_or_age || "غير مسجل");
-
-  const staffRoles = [
-    "system_admin",
-    "servant_admin",
-    "followup",
-    "viewer"
-  ];
-
-  if (staffRoles.includes(data.role)) {
-    document.getElementById("staffDashboard").classList.remove("hidden");
-  }
-
-  document.getElementById("staffAdminTools").classList.toggle(
-    "hidden",
-    data.role !== "system_admin"
-  );
-
-  message("تم تسجيل الدخول بنجاح ❤️");
-
-  await checkInFromLink();
-}
-
-async function checkInFromLink() {
-  if (new URLSearchParams(location.search).get("checkin") !== "1") return;
-  await checkIn();
-}
-
-async function checkIn() {
-  try {
-    message("جاري تسجيل الحضور...");
-
-    const { data, error } = await supabaseClient.rpc("check_in_from_qr");
-
-    if (error) throw error;
-
-    message(typeof data === "string" ? data : "تم تسجيل الحضور بنجاح ❤️");
-  } catch (error) {
-    message(error.message || "تعذر تسجيل الحضور", true);
-  }
-}
-
-async function logout() {
+async function loadProfile(){
+ const {data:{user}}=await supabaseClient.auth.getUser();
+ if(!user){showAuth();return;}
+ const {data,error}=await supabaseClient.from("profiles")
+  .select("id,full_name,phone,birth_date,education_or_age,residential_area,role,is_active")
+  .eq("id",user.id).single();
+ if(error){authMsg("تعذر تحميل الملف الشخصي: "+error.message,true);return;}
+ if(!data.is_active){
   await supabaseClient.auth.signOut();
-  showLogin();
-  message("تم تسجيل الخروج");
+  showAuth();
+  authMsg("هذا الحساب غير نشط. تواصل مع الإدارة.",true);
+  return;
+ }
+ currentProfile=data;
+ $("authArea").classList.add("hidden");
+ $("appArea").classList.remove("hidden");
+ $("welcomeName").textContent=data.full_name||"عضو الأسرة";
+ $("welcomeRole").textContent="الدور: "+roleName(data.role);
+ const staff=staffRoles.includes(data.role);
+ document.querySelectorAll(".nav").forEach(b=>{
+  b.classList.toggle("hidden",!staff);
+ });
+ $("staffAdminTools").classList.toggle("hidden",data.role!=="system_admin");
+ if(!staff){
+  document.querySelectorAll(".nav").forEach(b=>b.classList.add("hidden"));
+  $("page-home").classList.remove("active");
+  $("page-member-home").classList.add("active");
+  $("message").textContent="مرحباً بك في أسرة الأنبا شنودة ❤️";
+ }
+ msg("تم تسجيل الدخول بنجاح ❤️");
+ await checkInFromLink();
+ if(staff)await refreshAll();
+ if(refreshTimer)clearInterval(refreshTimer);
+ refreshTimer=setInterval(()=>{
+  if($("page-attendance").classList.contains("active"))loadAttendance();
+ },20000);
+}
+function roleName(role){
+ return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"مشرف / خادم",member:"عضو"})[role]||role||"غير محدد";
+}
+function showAuth(){
+ $("authArea").classList.remove("hidden");
+ $("appArea").classList.add("hidden");
+ showLogin();
+}
+async function logout(){
+ if(refreshTimer)clearInterval(refreshTimer);
+ await supabaseClient.auth.signOut();
+ currentProfile=null;
+ showAuth();
+ authMsg("تم تسجيل الخروج");
+}
+async function checkInFromLink(){
+ if(new URLSearchParams(location.search).get("checkin")!=="1")return;
+ await checkIn();
+}
+async function checkIn(){
+ try{
+  msg("جاري تسجيل الحضور...");
+  const {data,error}=await supabaseClient.rpc("check_in_from_qr");
+  if(error)throw error;
+  const result=typeof data==="string"?JSON.parse(data):data;
+  msg(result?.message||(result?.success?"تم تسجيل الحضور بنجاح":"تعذر تسجيل الحضور"),!result?.success);
+  if(staffRoles.includes(currentProfile?.role))await loadAttendance();
+ }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);}
+}
+async function createStaff(){
+ const full_name=$("staffName").value.trim();
+ const phone=$("staffPhone").value.trim();
+ const password=$("staffPassword").value;
+ if(!full_name||!phone||!password){msg("اكتب بيانات الخادم كاملة",true);return;}
+ if(password.length<8){msg("كلمة المرور يجب أن تكون 8 أحرف على الأقل",true);return;}
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){msg("سجّل الدخول أولاً",true);return;}
+ try{
+  msg("جاري إنشاء حساب الخادم...");
+  const response=await fetch(STAFF_FUNCTION_URL,{
+   method:"POST",
+   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},
+   body:JSON.stringify({full_name,phone,password})
+  });
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||"تعذر إنشاء الحساب");
+  $("staffName").value="";
+  $("staffPhone").value="";
+  $("staffPassword").value="";
+  msg("تم إنشاء حساب الخادم بنجاح ❤️");
+  await loadPeople();
+ }catch(e){msg(e.message,true);}
 }
 
-async function createStaff() {
-  const full_name = document.getElementById("staffName").value.trim();
-  const phone = document.getElementById("staffPhone").value.trim();
-  const password = document.getElementById("staffPassword").value;
-
-  if (!full_name || !phone || !password) {
-    message("اكتب بيانات الخادم كاملة", true);
-    return;
-  }
-
-  if (password.length < 8) {
-    message("كلمة المرور لازم تكون 8 أحرف على الأقل", true);
-    return;
-  }
-
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const token = sessionData.session?.access_token;
-
-  if (!token) {
-    message("سجّل الدخول الأول", true);
-    return;
-  }
-
-  try {
-    message("جاري إنشاء حساب الخادم...");
-
-    const response = await fetch(STAFF_FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ full_name, phone, password })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      message(result.error || "حصل خطأ أثناء إنشاء الحساب", true);
-      return;
-    }
-
-    message("تم إنشاء حساب الخادم بنجاح ❤️");
-
-    document.getElementById("staffName").value = "";
-    document.getElementById("staffPhone").value = "";
-    document.getElementById("staffPassword").value = "";
-  } catch (error) {
-    message("تعذر الاتصال: " + error.message, true);
-  }
+/* تحميل بيانات الأشخاص */
+async function loadPeople(){
+ if(!currentProfile||!staffRoles.includes(currentProfile.role))return;
+ msg("جاري تحميل بيانات الأعضاء والخدام...");
+ try{
+  const [m,s]=await Promise.all([
+   supabaseClient.from("members")
+    .select("profile_id,study_year,profiles!members_profile_id_fkey(id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active)")
+    .order("created_at"),
+   supabaseClient.from("servants")
+    .select("profile_id,responsibility,profiles!servants_profile_id_fkey(id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active)")
+    .order("created_at")
+  ]);
+  if(m.error)throw new Error("الأعضاء: "+m.error.message);
+  if(s.error)throw new Error("الخدام: "+s.error.message);
+  members=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||""}));
+  servants=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role)}));
+  $("homeMembers").textContent=members.length;
+  $("homeServants").textContent=servants.length;
+  $("membersCount").textContent=members.length;
+  $("servantsCount").textContent=servants.length;
+  renderMembers();
+  renderServants();
+  renderBirthdays();
+  msg("تم تحميل بيانات الأسرة");
+ }catch(e){
+  msg("تعذر تحميل القوائم: "+e.message,true);
+ }
+}
+function safe(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function attendanceCount(profileId){
+ return attendance.filter(a=>a.member_id===profileId).length;
+}
+function attendanceRate(profileId){
+ const total=meetings.length;
+ return total?Math.round(attendanceCount(profileId)/total*100):0;
+}
+function followFor(id){
+ return followups.find(x=>x.member_id===id);
+}
+function renderMembers(){
+ const q=($("memberSearch")?.value||"").trim().toLowerCase();
+ const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
+ $("membersTable").innerHTML=rows.map(x=>{
+  const f=followFor(x.id);
+  return `<tr>
+   <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
+   <td>${safe(x.birth_date||"—")}</td>
+   <td>${safe(x.study_year||"غير مسجل")}</td>
+   <td>${safe(x.residential_area||"—")}</td>
+   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x.id)}%</td>
+   <td>${safe(f?.status||"لم يتم التواصل")}</td>
+   <td><button class="secondary" onclick="editMember('${x.id}')">تعديل</button></td>
+  </tr>`;
+ }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
+}
+function renderServants(){
+ const q=($("servantSearch")?.value||"").trim().toLowerCase();
+ const rows=servants.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
+ $("servantsTable").innerHTML=rows.map(x=>`<tr>
+ <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
+ <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
+ <td>${safe(x.residential_area||"—")}</td>
+ <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x.id)}%</td>
+ <td><button class="secondary" onclick="editServant('${x.id}')">تعديل</button></td>
+ </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
+}
+async function editMember(id){
+ const x=members.find(p=>p.id===id);if(!x)return;
+ const year=prompt("الفرقة الدراسية (أولى، تانية، تالتة، رابعة، خريج):",x.study_year||"");
+ if(year===null)return;
+ try{
+  const {error}=await supabaseClient.from("members").update({study_year:year.trim()}).eq("profile_id",id);
+  if(error)throw error;
+  msg("تم تحديث الفرقة الدراسية");
+  await loadPeople();
+ }catch(e){msg("تعذر تعديل بيانات العضو: "+e.message,true);}
+}
+async function editServant(id){
+ const x=servants.find(p=>p.id===id);if(!x)return;
+ const responsibility=prompt("مسؤولية أو دور الخادم:",x.responsibility||"");
+ if(responsibility===null)return;
+ try{
+  const {error}=await supabaseClient.from("servants").update({responsibility:responsibility.trim()}).eq("profile_id",id);
+  if(error)throw error;
+  msg("تم تحديث مسؤولية الخادم");
+  await loadPeople();
+ }catch(e){msg("تعذر تعديل بيانات الخادم: "+e.message,true);}
 }
 
-/* عرض الأعضاء - دالة مستقلة */
-async function loadMembers() {
-  const list = document.getElementById("membersList");
-  list.textContent = "جاري تحميل الأعضاء...";
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("full_name, phone, residential_area, education_or_age")
-      .order("full_name");
-
-    if (error) throw error;
-
-    list.replaceChildren();
-
-    if (!data || data.length === 0) {
-      list.textContent = "مفيش أعضاء مسجلين حتى الآن";
-      return;
-    }
-
-    data.forEach(member => {
-      const card = document.createElement("div");
-      card.className = "member-card";
-
-      const name = document.createElement("h3");
-      name.textContent = member.full_name || "بدون اسم";
-      card.appendChild(name);
-
-      const fields = [
-        ["رقم الموبايل", member.phone],
-        ["العنوان", member.residential_area],
-        ["المرحلة الدراسية / السن", member.education_or_age]
-      ];
-
-      fields.forEach(([label, value]) => {
-        const row = document.createElement("div");
-        row.className = "member-field";
-
-        const title = document.createElement("strong");
-        title.textContent = label;
-
-        const content = document.createElement("div");
-        content.textContent = value || "غير مسجل";
-
-        row.appendChild(title);
-        row.appendChild(content);
-        card.appendChild(row);
-      });
-
-      list.appendChild(card);
-    });
-
-    message("تم عرض " + data.length + " عضو بنجاح ❤️");
-
-  } catch (error) {
-    list.textContent = "تعذر عرض الأعضاء: " + error.message;
-    message("حصل خطأ أثناء تحميل الأعضاء", true);
-  }
-}
-
-async function startApp() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-
-  if (session) {
-    await loadProfile();
-  } else {
-    showLogin();
-  }
-}
-
-startApp();
-</script>
-</body>
-</html>
+/* الحضور والاجتماعات */
+async function loadAttendance(){
+ if(!currentProfi
