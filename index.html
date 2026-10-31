@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>St. Shenouda | الحضور</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f2fa;
+      color: #29213a;
+      padding: 24px 14px;
+    }
+    .container {
+      max-width: 430px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px #35205a15;
+    }
+    h1 { color: #59368a; text-align: center; }
+    .sub { text-align: center; color: #777; margin-bottom: 25px; }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ddd; }
+    button {
+      border: 0;
+      background: #59368a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.secondary { background: #eee8f5; color: #59368a; }
+    .hidden { display: none; }
+    #message { text-align: center; margin-top: 15px; line-height: 1.6; }
+    .gold { color: #a88945; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>St. Shenouda</h1>
+    <p class="sub">أسرة الأنبا شنودة رئيس المتوحدين</p>
+
+    <section id="login">
+      <h3>تسجيل الدخول</h3>
+      <input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel">
+      <input id="loginPassword" type="password" placeholder="كلمة المرور">
+      <button onclick="login()">دخول</button>
+      <button class="secondary" onclick="showSignup()">إنشاء حساب جديد</button>
+    </section>
+
+    <section id="signup" class="hidden">
+      <h3>إنشاء حساب جديد</h3>
+      <input id="fullName" placeholder="الاسم بالكامل">
+      <input id="phone" placeholder="رقم الموبايل" inputmode="tel">
+      <input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل">
+      <input id="code" placeholder="كود التفعيل">
+      <input id="birthDate" type="date" aria-label="تاريخ الميلاد">
+      <input id="education" placeholder="المرحلة الدراسية أو السن">
+      <input id="area" placeholder="منطقة السكن">
+      <button onclick="signup()">إنشاء الحساب</button>
+      <button class="secondary" onclick="showLogin()">رجوع لتسجيل الدخول</button>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <h3>أهلاً بيك ❤️</h3>
+      <p id="memberName"></p>
+      <p class="gold">St. Shenouda Attendance</p>
+      <button onclick="checkIn()">تسجيل حضور الاجتماع</button>
+      <button class="secondary" onclick="logout()">تسجيل الخروج</button>
+    </section>
+
+    <p id="message"></p>
+  </div>
+
+<script>
+const SUPABASE_URL = "https://amrfujhlikbaubepiuye.supabase.co";
+const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const FUNCTION_URL =
+  SUPABASE_URL + "/functions/v1/login-with-phone";
+
+function message(text, error = false) {
+  const el = document.getElementById("message");
+  el.textContent = text;
+  el.style.color = error ? "#c0392b" : "#27834b";
+}
+
+function showLogin() {
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("signup").classList.add("hidden");
+  document.getElementById("dashboard").classList.add("hidden");
+  message("");
+}
+
+function showSignup() {
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("signup").classList.remove("hidden");
+  message("");
+}
+
+function showDashboard(name) {
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("signup").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  document.getElementById("memberName").textContent = name || "عضو الأسرة";
+}
+
+async function callLoginFunction(data) {
+  const response = await fetch(FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY
+    },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || result.error) {
+    throw new Error(result.error || "حصل خطأ، حاول مرة تانية");
+  }
+
+  return result;
+}
+
+async function login() {
+  try {
+    message("جاري تسجيل الدخول...");
+    const result = await callLoginFunction({
+      action: "login",
+      phone: document.getElementById("loginPhone").value.trim(),
+      password: document.getElementById("loginPassword").value
+    });
+
+    await supabaseClient.auth.setSession({
+      access_token: result.session.access_token,
+      refresh_token: result.session.refresh_token
+    });
+
+    await loadProfile();
+  } catch (error) {
+    message(error.message, true);
+  }
+}
+
+async function signup() {
+  try {
+    message("جاري إنشاء الحساب...");
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value;
+
+    await callLoginFunction({
+      action: "signup",
+      phone,
+      password,
+      code: document.getElementById("code").value.trim(),
+      full_name: document.getElementById("fullName").value.trim(),
+      birth_date: document.getElementById("birthDate").value || null,
+      education_or_age: document.getElementById("education").value.trim(),
+      residential_area: document.getElementById("area").value.trim()
+    });
+
+    const result = await callLoginFunction({
+      action: "login",
+      phone,
+      password
+    });
+
+    await supabaseClient.auth.setSession({
+      access_token: result.session.access_token,
+      refresh_token: result.session.refresh_token
+    });
+
+    await loadProfile();
+  } catch (error) {
+    message(error.message, true);
+  }
+}
+
+async function loadProfile() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    showLogin();
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    message("تم تسجيل الدخول، لكن تعذر تحميل بيانات الملف الشخصي.", true);
+    return;
+  }
+
+  showDashboard(data.full_name);
+  message("تم تسجيل الدخول بنجاح ❤️");
+  await checkInFromLink();
+}
+
+async function checkInFromLink() {
+  if (new URLSearchParams(location.search).get("checkin") !== "1") return;
+  await checkIn();
+}
+
+async function checkIn() {
+  try {
+    message("جاري تسجيل الحضور...");
+    const { data, error } = await supabaseClient.rpc("check_in_from_qr");
+
+    if (error) throw error;
+
+    message(typeof data === "string" ? data : "تم تسجيل الحضور بنجاح ❤️");
+  } catch (error) {
+    message(error.message || "تعذر تسجيل الحضور", true);
+  }
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  showLogin();
+  message("تم تسجيل الخروج");
+}
+
+async function startApp() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    await loadProfile();
+  } else {
+    showLogin();
+  }
+}
+
+startApp();
+</script>
+</body>
+</html>
