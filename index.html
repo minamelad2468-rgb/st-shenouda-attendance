@@ -80,6 +80,24 @@
       <button class="secondary" onclick="logout()">تسجيل الخروج</button>
     </section>
 
+    <section id="staffDashboard" class="hidden">
+      <h2>لوحة الخدام</h2>
+      <p>إدارة ومتابعة الأسرة</p>
+
+      <div id="staffAdminTools" class="hidden">
+        <h3>إضافة خادم جديد</h3>
+        <input id="staffName" placeholder="اسم الخادم بالكامل">
+        <input id="staffPhone" placeholder="رقم الموبايل">
+        <input id="staffPassword" type="password" placeholder="كلمة المرور">
+        <button onclick="createStaff()">إضافة الخادم</button>
+        <hr>
+      </div>
+
+      <h3>متابعة الأعضاء</h3>
+      <button onclick="loadMembers()">عرض الأعضاء</button>
+      <div id="membersList"></div>
+    </section>
+
     <p id="message"></p>
   </div>
 
@@ -95,28 +113,36 @@ const supabaseClient = window.supabase.createClient(
 const FUNCTION_URL =
   SUPABASE_URL + "/functions/v1/login-with-phone";
 
+const STAFF_FUNCTION_URL =
+  SUPABASE_URL + "/functions/v1/create-staff";
+
 function message(text, error = false) {
   const el = document.getElementById("message");
   el.textContent = text;
   el.style.color = error ? "#c0392b" : "#27834b";
 }
 
-function showLogin() {
-  document.getElementById("login").classList.remove("hidden");
+function hideAllSections() {
+  document.getElementById("login").classList.add("hidden");
   document.getElementById("signup").classList.add("hidden");
   document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("staffDashboard").classList.add("hidden");
+}
+
+function showLogin() {
+  hideAllSections();
+  document.getElementById("login").classList.remove("hidden");
   message("");
 }
 
 function showSignup() {
-  document.getElementById("login").classList.add("hidden");
+  hideAllSections();
   document.getElementById("signup").classList.remove("hidden");
   message("");
 }
 
 function showDashboard(name) {
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("signup").classList.add("hidden");
+  hideAllSections();
   document.getElementById("dashboard").classList.remove("hidden");
   document.getElementById("memberName").textContent = name || "عضو الأسرة";
 }
@@ -144,6 +170,7 @@ async function callLoginFunction(data) {
 async function login() {
   try {
     message("جاري تسجيل الدخول...");
+
     const result = await callLoginFunction({
       action: "login",
       phone: document.getElementById("loginPhone").value.trim(),
@@ -164,6 +191,7 @@ async function login() {
 async function signup() {
   try {
     message("جاري إنشاء الحساب...");
+
     const phone = document.getElementById("phone").value.trim();
     const password = document.getElementById("password").value;
 
@@ -205,7 +233,7 @@ async function loadProfile() {
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("full_name")
+    .select("full_name, role, is_active")
     .eq("id", user.id)
     .single();
 
@@ -214,8 +242,31 @@ async function loadProfile() {
     return;
   }
 
+  if (!data.is_active) {
+    await supabaseClient.auth.signOut();
+    showLogin();
+    message("هذا الحساب غير نشط. تواصل مع الإدارة.", true);
+    return;
+  }
+
   showDashboard(data.full_name);
+
+  const staffRoles = [
+    "system_admin",
+    "servant_admin",
+    "followup",
+    "viewer"
+  ];
+
+  if (staffRoles.includes(data.role)) {
+    document.getElementById("staffDashboard").classList.remove("hidden");
+  }
+
+  const adminTools = document.getElementById("staffAdminTools");
+  adminTools.classList.toggle("hidden", data.role !== "system_admin");
+
   message("تم تسجيل الدخول بنجاح ❤️");
+
   await checkInFromLink();
 }
 
@@ -227,6 +278,7 @@ async function checkInFromLink() {
 async function checkIn() {
   try {
     message("جاري تسجيل الحضور...");
+
     const { data, error } = await supabaseClient.rpc("check_in_from_qr");
 
     if (error) throw error;
@@ -241,6 +293,87 @@ async function logout() {
   await supabaseClient.auth.signOut();
   showLogin();
   message("تم تسجيل الخروج");
+}
+
+async function createStaff() {
+  const full_name = document.getElementById("staffName").value.trim();
+  const phone = document.getElementById("staffPhone").value.trim();
+  const password = document.getElementById("staffPassword").value;
+
+  if (!full_name || !phone || !password) {
+    message("اكتب بيانات الخادم كاملة", true);
+    return;
+  }
+
+  if (password.length < 8) {
+    message("كلمة المرور لازم تكون 8 أحرف على الأقل", true);
+    return;
+  }
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const token = sessionData.session?.access_token;
+
+  if (!token) {
+    message("سجّل الدخول الأول", true);
+    return;
+  }
+
+  try {
+    message("جاري إنشاء حساب الخادم...");
+
+    const response = await fetch(STAFF_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ full_name, phone, password })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      message(result.error || "حصل خطأ أثناء إنشاء الحساب", true);
+      return;
+    }
+
+    message("تم إنشاء حساب الخادم بنجاح ❤️");
+
+    document.getElementById("staffName").value = "";
+    document.getElementById("staffPhone").value = "";
+    document.getElementById("staffPassword").value = "";
+  } catch (error) {
+    message("تعذر الاتصال، حاول مرة أخرى", true);
+  }
+}
+
+async function loadMembers() {
+  const list = document.getElementById("membersList");
+  list.textContent = "جاري تحميل الأعضاء...";
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("full_name, phone, residential_area, role")
+    .order("full_name");
+
+  if (error) {
+    list.textContent = "مش قادرين نعرض الأعضاء: " + error.message;
+    return;
+  }
+
+  list.replaceChildren();
+
+  data.forEach(member => {
+    const item = document.createElement("p");
+    item.textContent =
+      `${member.full_name} — ${member.phone || ""} — ${member.residential_area || ""}`;
+    list.appendChild(item);
+  });
+
+  if (data.length === 0) {
+    list.textContent = "مفيش أعضاء مسجلين حتى الآن";
+  }
 }
 
 async function startApp() {
