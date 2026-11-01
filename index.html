@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-٪3Chtml lang="ar" dir="rtl"٪3E
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,6 +15,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:9px;background:#fff}
 textarea{min-height:75px;resize:vertical}
 .hidden{display:none!important}
+.check{display:flex;align-items:center;gap:8px;font-weight:bold;color:#59368a;margin:10px 0;cursor:pointer}
+.check input{width:auto;margin:0}
 .container{max-width:1100px;margin:25px auto;padding:16px}
 .auth{max-width:440px;margin:45px auto;background:#fff;padding:25px;border-radius:18px;box-shadow:0 8px 30px #35205a15}
 .auth button{width:100%;margin-top:8px}
@@ -49,6 +50,11 @@ tr:last-child td{border-bottom:0}
 #modal .box{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:400px}
 #modal .btns{display:flex;gap:8px}
 #modal .btns button{flex:1}
+#editModal{position:fixed;inset:0;background:#29213a99;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;overflow-y:auto}
+#editModal .box{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:420px}
+#editModal label{font-size:13px;color:#59368a;font-weight:bold}
+#editModal .btns{display:flex;gap:8px}
+#editModal .btns button{flex:1}
 @media(max-width:750px){
  .layout{grid-template-columns:1fr}
  .sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
@@ -58,11 +64,11 @@ tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
- 
+
 <section id="authArea" class="auth">
 <h1>St. Shenouda</h1>
 <p class="sub">أسرة الأنبا شنودة رئيس المتوحدين</p>
- 
+
 <div id="login">
 <h3>تسجيل الدخول</h3>
 <input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel" autocomplete="tel">
@@ -70,13 +76,15 @@ tr:last-child td{border-bottom:0}
 <button onclick="login()">دخول</button>
 <button class="secondary" onclick="showSignup()">إنشاء حساب جديد</button>
 </div>
- 
+
 <div id="signup" class="hidden">
 <h3>إنشاء حساب جديد</h3>
 <input id="fullName" placeholder="الاسم بالكامل">
 <input id="phone" placeholder="رقم الموبايل" inputmode="tel">
 <input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل" autocomplete="new-password">
+<label class="check"><input type="checkbox" id="isServant" onchange="toggleServant()"> التسجيل كخادم</label>
 <input id="code" placeholder="كود التفعيل">
+<p id="codeHint" class="muted">التسجيل كطالب بكود التفعيل العادي.</p>
 <input id="birthDate" type="date" aria-label="تاريخ الميلاد">
 <input id="education" placeholder="المرحلة الدراسية أو السن">
 <input id="area" placeholder="منطقة السكن">
@@ -85,7 +93,7 @@ tr:last-child td{border-bottom:0}
 </div>
 <p id="authMessage" style="text-align:center;line-height:1.6"></p>
 </section>
- 
+
 <main id="appArea" class="container hidden">
 <header class="panel">
 <h1>St. Shenouda</h1>
@@ -99,7 +107,7 @@ tr:last-child td{border-bottom:0}
 </div>
 <p id="message"></p>
 </header>
- 
+
 <div class="layout" id="layout">
 <aside class="sidebar" id="sidebar">
 <h3>القائمة الرئيسية</h3>
@@ -111,9 +119,9 @@ tr:last-child td{border-bottom:0}
 <button class="nav" data-page="followups" onclick="openPage('followups',this)">المتابعة</button>
 <button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)">أعياد الميلاد</button>
 </aside>
- 
+
 <div class="content">
- 
+
 <section id="page-member-home" class="page">
 <div class="panel">
 <h2>أهلاً بك ❤️</h2>
@@ -121,7 +129,7 @@ tr:last-child td{border-bottom:0}
 <button onclick="checkIn()">تسجيل حضوري الآن</button>
 </div>
 </section>
- 
+
 <section id="page-home" class="page active">
 <div class="panel">
 <h2>مرحباً بك ❤️</h2>
@@ -134,7 +142,7 @@ tr:last-child td{border-bottom:0}
 <button onclick="refreshAll()">تحديث البيانات</button>
 </div>
 </section>
- 
+
 <section id="page-attendance" class="page">
 <div class="panel">
 <h2>الحضور والغياب</h2>
@@ -153,7 +161,7 @@ tr:last-child td{border-bottom:0}
 <div id="absentList"></div>
 </div>
 </section>
- 
+
 <section id="page-members" class="page">
 <div class="panel">
 <h2>الأعضاء</h2>
@@ -170,18 +178,10 @@ tr:last-child td{border-bottom:0}
 </div>
 </div>
 </section>
- 
+
 <section id="page-servants" class="page">
 <div class="panel">
 <h2>الخدام</h2>
-<div id="staffAdminTools" class="card hidden">
-<h3>إضافة خادم جديد</h3>
-<input id="staffName" placeholder="اسم الخادم بالكامل">
-<input id="staffPhone" placeholder="رقم الموبايل" inputmode="tel">
-<input id="staffPassword" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل" autocomplete="new-password">
-<button onclick="createStaff()">إضافة الخادم</button>
-<p class="muted">يُنشأ الحساب بصلاحية "خادم (عرض فقط)" من خلال دالة create-staff.</p>
-</div>
 <div class="toolbar">
 <input id="servantSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderServants()">
 <button onclick="loadPeople()">تحديث القائمة</button>
@@ -195,7 +195,7 @@ tr:last-child td{border-bottom:0}
 </div>
 </div>
 </section>
- 
+
 <section id="page-reports" class="page">
 <div class="panel">
 <h2>التقارير والإحصائيات</h2>
@@ -216,7 +216,7 @@ tr:last-child td{border-bottom:0}
 <div id="reportDetails"></div>
 </div>
 </section>
- 
+
 <section id="page-followups" class="page">
 <div class="panel">
 <h2>متابعة الأعضاء</h2>
@@ -228,7 +228,7 @@ tr:last-child td{border-bottom:0}
 <div id="followList"></div>
 </div>
 </section>
- 
+
 <section id="page-birthdays" class="page">
 <div class="panel">
 <h2>أعياد الميلاد القادمة</h2>
@@ -236,11 +236,11 @@ tr:last-child td{border-bottom:0}
 <div id="birthdayList"></div>
 </div>
 </section>
- 
+
 </div>
 </div>
 </main>
- 
+
 <div id="modal" class="hidden" role="dialog" aria-modal="true">
 <div class="box">
 <h3 id="modalTitle"></h3>
@@ -252,23 +252,42 @@ tr:last-child td{border-bottom:0}
 </div>
 </div>
 </div>
- 
+
+<div id="editModal" class="hidden" role="dialog" aria-modal="true">
+<div class="box">
+<h3 id="editTitle"></h3>
+<label for="eName">الاسم</label>
+<input id="eName">
+<label for="eBirth">تاريخ الميلاد</label>
+<input id="eBirth" type="date">
+<label for="eArea">منطقة السكن</label>
+<input id="eArea">
+<label for="eExtra" id="eExtraLabel"></label>
+<input id="eExtra" list="eYears">
+<datalist id="eYears"></datalist>
+<p id="editMsg" style="color:#c0392b;font-size:13px;line-height:1.6"></p>
+<div class="btns">
+<button onclick="saveEdit()">حفظ التعديلات</button>
+<button class="secondary" onclick="closeEdit()">إلغاء</button>
+</div>
+</div>
+</div>
+
 <script>
 const SUPABASE_URL="https://amrfujhlikbaubepiuye.supabase.co";
 const SUPABASE_KEY="sb_publishable_nIsrayREACP6CFMtiYX1Yg_uRnWlHWu";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
-const STAFF_FUNCTION_URL=SUPABASE_URL+"/functions/v1/create-staff";
- 
+
 const $=id=>document.getElementById(id);
 let currentProfile=null;
 let members=[],servants=[],meetings=[],attendance=[],followups=[];
 let refreshTimer=null,peopleLoaded=false;
- 
+
 const staffRoles=["system_admin","servant_admin","followup","viewer"];
 const followStatuses=["لم يتم التواصل","جاري المتابعة","تم التواصل","يحتاج متابعة مرة أخرى"];
 const studyYears=["أولى","تانية","تالتة","رابعة","خريج"];
- 
+
 function msg(text,error=false){
  $("message").textContent=text||"";
  $("message").style.color=error?"#c0392b":"#27834b";
@@ -286,7 +305,7 @@ function cleanPhone(v){
 }
 const cairoToday=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Africa/Cairo"});
 const isStaff=()=>staffRoles.includes(currentProfile?.role);
- 
+
 /* نافذة تعديل بدل prompt */
 function askValue(title,value,options){
  return new Promise(resolve=>{
@@ -305,7 +324,7 @@ function askValue(title,value,options){
   $("modalInput").onkeydown=e=>{if(e.key==="Enter")close($("modalInput").value);if(e.key==="Escape")close(null);};
  });
 }
- 
+
 function showLogin(){
  $("login").classList.remove("hidden");
  $("signup").classList.add("hidden");
@@ -327,7 +346,7 @@ function openPage(name,button){
  if(name==="followups")loadFollowups();
  if(name==="birthdays")renderBirthdays();
 }
- 
+
 /* تسجيل الدخول */
 async function callLoginFunction(data){
  const response=await fetch(FUNCTION_URL,{
@@ -357,6 +376,12 @@ async function login(){
   await setSession(result);
  }catch(e){authMsg(e.message,true);}
 }
+function toggleServant(){
+ const on=$("isServant").checked;
+ $("code").placeholder=on?"كود الخادم":"كود التفعيل";
+ $("codeHint").textContent=on?"التسجيل كخادم يحتاج كود الخادم الخاص.":"التسجيل كطالب بكود التفعيل العادي.";
+ $("code").value="";
+}
 async function signup(){
  try{
   authMsg("جاري إنشاء الحساب...");
@@ -364,8 +389,10 @@ async function signup(){
   const password=$("password").value;
   if(!$("fullName").value.trim()||!phone)throw new Error("اكتب الاسم ورقم الموبايل");
   if(password.length<8)throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+  if(!$("code").value.trim())throw new Error($("isServant").checked?"اكتب كود الخادم":"اكتب كود التفعيل");
   await callLoginFunction({
    action:"signup",phone,password,
+   account_type:$("isServant").checked?"servant":"member",
    code:$("code").value.trim(),
    full_name:$("fullName").value.trim(),
    birth_date:$("birthDate").value||null,
@@ -380,7 +407,7 @@ document.addEventListener("keydown",e=>{
  if(e.key!=="Enter")return;
  if(e.target.id==="loginPhone"||e.target.id==="loginPassword")login();
 });
- 
+
 function roleName(role){
  return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"خادم (عرض فقط)",member:"عضو"})[role]||role||"غير محدد";
 }
@@ -405,8 +432,7 @@ async function loadProfile(){
  const staff=isStaff();
  $("sidebar").classList.toggle("hidden",!staff);
  $("layout").classList.toggle("single",!staff);
- $("staffAdminTools").classList.toggle("hidden",data.role!=="system_admin");
- document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
  if(staff){
   $("page-home").classList.add("active");
@@ -435,7 +461,7 @@ async function logout(){
  showAuth();
  authMsg("تم تسجيل الخروج");
 }
- 
+
 /* تسجيل الحضور */
 async function checkInFromLink(){
  if(new URLSearchParams(location.search).get("checkin")!=="1")return;
@@ -453,30 +479,7 @@ async function checkIn(){
   if(isStaff())await loadAttendance();
  }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);}
 }
- 
-async function createStaff(){
- const full_name=$("staffName").value.trim();
- const phone=cleanPhone($("staffPhone").value);
- const password=$("staffPassword").value;
- if(!full_name||!phone||!password){msg("اكتب بيانات الخادم كاملة",true);return;}
- if(password.length<8){msg("كلمة المرور يجب أن تكون 8 أحرف على الأقل",true);return;}
- const {data:{session}}=await supabaseClient.auth.getSession();
- if(!session){msg("سجّل الدخول أولاً",true);return;}
- try{
-  msg("جاري إنشاء حساب الخادم...");
-  const response=await fetch(STAFF_FUNCTION_URL,{
-   method:"POST",
-   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},
-   body:JSON.stringify({full_name,phone,password})
-  });
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(result.error||"تعذر إنشاء الحساب");
-  $("staffName").value="";$("staffPhone").value="";$("staffPassword").value="";
-  msg("تم إنشاء حساب الخادم بنجاح ❤️");
-  await loadPeople();
- }catch(e){msg(e.message,true);}
-}
- 
+
 /* الأعضاء والخدام */
 async function loadPeople(){
  if(!isStaff())return;
@@ -501,7 +504,7 @@ async function loadPeople(){
  }catch(e){msg("تعذر تحميل القوائم: "+e.message,true);}
 }
 async function ensurePeople(){if(!peopleLoaded)await loadPeople();}
- 
+
 function attendanceCount(id){
  return attendance.filter(a=>a.member_id===id).length;
 }
@@ -514,7 +517,7 @@ function attendanceRate(p){
  return Math.min(100,Math.round(att/ids.size*100));
 }
 function followFor(id){return followups.find(x=>x.member_id===id);}
- 
+
 function renderMembers(){
  const q=($("memberSearch").value||"").trim().toLowerCase();
  const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
@@ -527,7 +530,7 @@ function renderMembers(){
    <td>${safe(x.residential_area||"—")}</td>
    <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
    <td>${safe(f?.status||"لم يتم التواصل")}</td>
-   <td><button class="secondary" onclick="editMember('${x.id}')">تعديل</button></td>
+   <td>${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">تعديل</button>`:"—"}</td>
   </tr>`;
  }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
 }
@@ -539,32 +542,53 @@ function renderServants(){
   <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
   <td>${safe(x.residential_area||"—")}</td>
   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
-  <td><button class="secondary" onclick="editServant('${x.id}')">تعديل</button></td>
+  <td>${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">تعديل</button>`:"—"}</td>
  </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
 }
-async function editMember(id){
- const x=members.find(p=>p.id===id);if(!x)return;
- const year=await askValue("الفرقة الدراسية لـ "+x.full_name,x.study_year,studyYears);
- if(year===null)return;
- try{
-  const {error}=await supabaseClient.from("members").update({study_year:year.trim()}).eq("profile_id",id);
-  if(error)throw error;
-  msg("تم تحديث الفرقة الدراسية");
-  await loadPeople();
- }catch(e){msg("تعذر تعديل بيانات العضو: "+e.message,true);}
+function canEdit(){return ["system_admin","servant_admin"].includes(currentProfile?.role);}
+let editing=null;
+function editMember(id){openEdit("member",id);}
+function editServant(id){openEdit("servant",id);}
+function openEdit(kind,id){
+ if(!canEdit())return;
+ const x=(kind==="member"?members:servants).find(p=>p.id===id);if(!x)return;
+ editing={kind,id};
+ $("editTitle").textContent="تعديل بيانات "+(x.full_name||"");
+ $("eName").value=x.full_name||"";
+ $("eBirth").value=x.birth_date||"";
+ $("eArea").value=x.residential_area||"";
+ $("eExtra").value=kind==="member"?(x.study_year||""):(x.responsibility||"");
+ $("eExtraLabel").textContent=kind==="member"?"الفرقة الدراسية":"المسؤولية";
+ $("eYears").innerHTML=kind==="member"?studyYears.map(y=>`<option value="${y}">`).join(""):"";
+ $("editMsg").textContent="";
+ $("editModal").classList.remove("hidden");
+ $("eName").focus();
 }
-async function editServant(id){
- const x=servants.find(p=>p.id===id);if(!x)return;
- const r=await askValue("مسؤولية "+x.full_name,x.responsibility);
- if(r===null)return;
+function closeEdit(){$("editModal").classList.add("hidden");editing=null;}
+async function saveEdit(){
+ if(!editing||!canEdit())return;
+ const {kind,id}=editing;
+ const name=$("eName").value.trim();
+ if(!name){$("editMsg").textContent="الاسم لا يمكن أن يكون فارغاً";return;}
  try{
-  const {error}=await supabaseClient.from("servants").update({responsibility:r.trim()}).eq("profile_id",id);
-  if(error)throw error;
-  msg("تم تحديث مسؤولية الخادم");
+  $("editMsg").style.color="#27834b";$("editMsg").textContent="جاري الحفظ...";
+  const p=await supabaseClient.from("profiles")
+   .update({full_name:name,birth_date:$("eBirth").value||null,residential_area:$("eArea").value.trim()})
+   .eq("id",id).select("id");
+  if(p.error)throw p.error;
+  if(!p.data?.length)throw new Error("لا توجد صلاحية لتعديل جدول profiles (راجع سياسات RLS)");
+  const extra=$("eExtra").value.trim();
+  const r=kind==="member"
+   ?await supabaseClient.from("members").update({study_year:extra}).eq("profile_id",id).select("profile_id")
+   :await supabaseClient.from("servants").update({responsibility:extra}).eq("profile_id",id).select("profile_id");
+  if(r.error)throw r.error;
+  if(!r.data?.length)throw new Error("لا توجد صلاحية لتعديل هذا الحقل (راجع سياسات RLS)");
+  closeEdit();
   await loadPeople();
- }catch(e){msg("تعذر تعديل بيانات الخادم: "+e.message,true);}
+  msg("تم حفظ التعديلات");
+ }catch(e){$("editMsg").style.color="#c0392b";$("editMsg").textContent="تعذر الحفظ: "+e.message;}
 }
- 
+
 /* الحضور */
 async function fetchAttendanceData(){
  const [a,m]=await Promise.all([
@@ -615,7 +639,7 @@ async function loadAttendance(){
   renderMembers();renderServants();
  }catch(e){msg("تعذر تحميل الحضور والاجتماعات: "+e.message,true);}
 }
- 
+
 /* التقارير */
 async function loadReports(){
  if(!isStaff())return;
@@ -651,7 +675,7 @@ function renderReports(){
  إجمالي تسجيلات الحضور: <strong>${rows.length}</strong><br>
  <span class="muted">النسبة = تسجيلات الحضور ÷ (عدد الأشخاص × عدد الاجتماعات في الفترة).</span></div>`;
 }
- 
+
 /* المتابعة */
 async function loadFollowups(){
  if(!isStaff())return;
@@ -700,7 +724,7 @@ async function saveFollowup(id){
   await loadFollowups();
  }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
 }
- 
+
 /* أعياد الميلاد */
 function renderBirthdays(){
  const all=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
@@ -719,7 +743,7 @@ function renderBirthdays(){
   <div>${x.days===0?"عيد الميلاد اليوم 🎉":"متبقي "+x.days+" يوم"}</div>
  </div>`).join("")||'<p class="muted">لا توجد أعياد ميلاد خلال الثلاثين يومًا القادمة، أو لم يتم تسجيل تواريخ الميلاد.</p>';
 }
- 
+
 async function refreshAll(){
  await loadPeople();
  await loadAttendance();
