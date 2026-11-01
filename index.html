@@ -441,7 +441,14 @@ tr:last-child td{border-bottom:0}
 if(window.top!==window.self){document.documentElement.style.display="none";}
 const SUPABASE_URL="https://amrfujhlikbaubepiuye.supabase.co";
 const SUPABASE_KEY="sb_publishable_nIsrayREACP6CFMtiYX1Yg_uRnWlHWu";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+// Keep the signed-in session in this browser so QR check-in can reuse it.
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+ auth:{
+  persistSession:true,
+  autoRefreshToken:true,
+  detectSessionInUrl:true
+ }
+});
 const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
 
 const $=id=>document.getElementById(id);
