@@ -1356,5 +1356,320 @@ async function startApp(){
 }
 startApp();
 </script>
+
+<!-- ============================================================
+  St. Shenouda — DESIGN ADD-ON
+  HOW TO USE: paste this whole block right BEFORE the closing </body> tag
+  (after your existing <script>). Nothing else needs to change.
+  It only adds looks + animations. No ids / functions are modified.
+  Works with your CSP (inline style/script, system fonts, no external files).
+============================================================ -->
+
+<style id="shenouda-skin">
+:root{
+  --wine:#7a1424; --wine2:#a3203a; --gold:#a88945; --gold2:#e2c36b; --cream:#f5eedb;
+  --pg:#7a1424; --pg2:#c0405a; --pgsoft:#f9e8ec;
+  --shadow:0 10px 30px -10px rgba(122,20,36,.35);
+}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI","Tahoma","Cairo",system-ui,-apple-system,Arial,sans-serif;background:var(--cream);transition:background .6s}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle at 15% 10%,rgba(226,195,107,.28),transparent 45%),
+             radial-gradient(circle at 90% 85%,rgba(163,32,58,.18),transparent 50%),
+             linear-gradient(180deg,rgba(245,238,219,.78),rgba(245,238,219,.9))}
+
+/* floating blobs (added by JS) */
+.blob{position:fixed;z-index:-1;border-radius:50%;filter:blur(40px);opacity:.45;pointer-events:none;animation:floaty 14s ease-in-out infinite}
+.blob.b1{width:260px;height:260px;background:#e2c36b;top:6%;left:-60px}
+.blob.b2{width:300px;height:300px;background:#c0405a;bottom:4%;right:-80px;animation-delay:-5s}
+.blob.b3{width:200px;height:200px;background:#6fb58a;top:48%;left:55%;opacity:.25;animation-delay:-9s}
+@keyframes floaty{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.12)}}
+
+/* ---------- LOGIN CARD ---------- */
+.auth{position:relative;border-radius:28px;border:1px solid rgba(168,137,69,.35);
+  background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(251,246,236,.92));
+  box-shadow:0 25px 60px -20px rgba(122,20,36,.45),0 0 0 6px rgba(255,255,255,.4);
+  animation:popIn .7s cubic-bezier(.2,1.2,.3,1) both;overflow:hidden}
+.auth::before{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:linear-gradient(90deg,var(--wine),var(--gold2),var(--wine2),var(--gold))}
+.auth .logo{width:128px;height:128px;border-radius:50%;box-shadow:0 0 0 5px #fff,0 0 0 8px var(--gold),0 14px 30px -8px rgba(122,20,36,.5);animation:logoPulse 4s ease-in-out infinite;background-color:#fff}
+@keyframes logoPulse{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+.auth h1{font-size:34px;letter-spacing:.5px;background:linear-gradient(90deg,var(--wine),var(--gold),var(--wine2));-webkit-background-clip:text;background-clip:text;color:transparent;margin:8px 0 2px}
+.auth h3{text-align:center}
+@keyframes popIn{from{opacity:0;transform:translateY(30px) scale(.92)}to{opacity:1;transform:none}}
+
+/* ---------- INPUTS ---------- */
+input,select,textarea{border:2px solid #eadcc0;border-radius:14px;background:#fffdf8;transition:border-color .25s,box-shadow .25s,transform .25s}
+input:hover,select:hover,textarea:hover{border-color:var(--gold)}
+input:focus,select:focus,textarea:focus{border-color:var(--pg);box-shadow:0 0 0 4px color-mix(in srgb,var(--pg) 18%,transparent);transform:translateY(-1px);outline:none}
+.fld>.ic{transition:transform .3s,color .3s}
+.fld:focus-within>.ic{transform:translateY(-50%) scale(1.25) rotate(-8deg);color:var(--wine)}
+
+/* ---------- BUTTONS (base + ripple) ---------- */
+button{position:relative;overflow:hidden;border-radius:14px;letter-spacing:.2px;
+  background:linear-gradient(135deg,var(--wine),var(--wine2));
+  box-shadow:0 8px 18px -8px rgba(122,20,36,.7),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .2s cubic-bezier(.3,1.6,.5,1),box-shadow .25s,filter .25s}
+button:hover{transform:translateY(-3px) scale(1.03);filter:saturate(1.15);box-shadow:0 14px 24px -10px rgba(122,20,36,.8)}
+button:active{transform:translateY(1px) scale(.97)}
+button .ic{transition:transform .35s}
+button:hover .ic{transform:rotate(-12deg) scale(1.25)}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:rip .65s ease-out;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+
+/* shimmer sweep on primary buttons */
+button:not(.secondary):not(.danger)::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .6s}
+button:not(.secondary):not(.danger):hover::after{left:130%}
+
+/* secondary = glassy outlined */
+button.secondary{background:linear-gradient(135deg,#fff,#f6ecd6);color:var(--wine);border:2px solid var(--gold);box-shadow:0 6px 14px -8px rgba(168,137,69,.8)}
+button.secondary:hover{background:linear-gradient(135deg,#fff7e0,#f1dfae);border-color:var(--wine)}
+/* danger = fiery with wobble */
+button.danger{background:linear-gradient(135deg,#d93a3a,#8f1414)}
+button.danger:hover{animation:wobble .5s}
+@keyframes wobble{25%{transform:rotate(-4deg) scale(1.05)}50%{transform:rotate(4deg) scale(1.05)}75%{transform:rotate(-2deg) scale(1.05)}}
+
+/* UNIQUE buttons by purpose */
+button[onclick^="login"]{background:linear-gradient(135deg,#7a1424,#c0405a 55%,#e2c36b);background-size:200% 100%;animation:grad 5s linear infinite;font-size:17px;padding:14px}
+button[onclick^="signup"]{background:linear-gradient(135deg,#1f7a52,#35b37e);box-shadow:0 8px 18px -8px rgba(31,122,82,.8)}
+button[onclick^="showSignup"],button[onclick^="showLogin"]{border-style:dashed}
+button[onclick^="checkIn"]{background:linear-gradient(135deg,#1d8f5a,#46c98b);font-size:17px;padding:14px 22px;border-radius:40px;animation:beat 2.4s ease-in-out infinite}
+button[onclick^="logout"]{background:linear-gradient(135deg,#fff,#fbe3e6);color:var(--wine);border:2px solid var(--wine2);border-radius:40px}
+button[onclick^="logout"]:hover .ic{transform:translateX(-6px)}
+button[onclick*="refresh"],button[onclick^="load"],button[onclick^="refreshAll"]{border-radius:40px}
+button[onclick*="refresh"]:hover .ic,button[onclick^="load"]:hover .ic{transform:rotate(360deg)}
+button[onclick^="markVisit"]:not(.secondary){background:linear-gradient(135deg,#d98a1b,#f2c14e);color:#4a2c00}
+button[onclick^="saveFollowup"],button[onclick^="saveEdit"]{background:linear-gradient(135deg,#2a5fbf,#4f93ef)}
+button[onclick^="restorePerson"]{background:linear-gradient(135deg,#6a3bb8,#a074ee)}
+button[onclick^="editMember"],button[onclick^="editServant"]{border-radius:30px}
+button[onclick^="calNav"]{border-radius:40px}
+button#modalOk{background:linear-gradient(135deg,#1f7a52,#35b37e)}
+@keyframes grad{to{background-position:200% 0}}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+/* ---------- HEADER PANEL ---------- */
+#appArea>header.panel{position:relative;text-align:center;border-radius:28px;color:#fff;overflow:hidden;
+  background:linear-gradient(135deg,#5e0f1c 0%,#7a1424 40%,#b0304a 100%);
+  box-shadow:0 22px 50px -20px rgba(122,20,36,.7)}
+#appArea>header.panel::before{content:"✝";position:absolute;font-size:200px;opacity:.07;top:-40px;left:-20px;transform:rotate(-12deg);pointer-events:none}
+#appArea>header.panel::after{content:"";position:absolute;inset:auto 0 0 0;height:5px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold))}
+#appArea>header .logo.sm{border-radius:50%;box-shadow:0 0 0 4px #fff,0 0 0 7px var(--gold2);background-color:#fff;margin-bottom:10px}
+#appArea>header h1{color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.35)}
+#appArea>header .sub{color:#f6dfa6}
+#appArea>header .muted{color:#f1d8dc}
+#appArea>header .row{background:rgba(255,255,255,.1);border-radius:18px;padding:10px 14px;backdrop-filter:blur(6px);margin-top:8px}
+#message{font-weight:bold;background:rgba(255,255,255,.14);border-radius:12px;margin-top:8px}
+#checkinBanner{animation:popIn .6s both;font-size:17px}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(251,243,226,.95));border-radius:24px;border:1px solid rgba(168,137,69,.3);position:sticky;top:12px;align-self:start}
+.sidebar h3{text-align:center;padding-bottom:8px;border-bottom:2px dashed var(--gold)}
+.sidebar button.nav{background:transparent;color:#4d2a30;box-shadow:none;border-radius:16px;transition:all .3s;--c:var(--wine)}
+.sidebar button.nav .ic{color:var(--c);background:color-mix(in srgb,var(--c) 14%,#fff);padding:6px;width:2em;height:2em;border-radius:12px;margin-inline-end:10px}
+.sidebar button.nav::after{display:none}
+.sidebar button.nav:hover{background:color-mix(in srgb,var(--c) 12%,#fff);transform:translateX(-6px);box-shadow:none}
+.sidebar button.nav.active{background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 55%,#fff))!important;color:#fff;box-shadow:0 10px 20px -8px var(--c);transform:translateX(-8px)}
+.sidebar button.nav.active .ic{background:rgba(255,255,255,.25);color:#fff}
+/* a color per menu item */
+.nav[data-page=home]{--c:#7a1424}.nav[data-page=notifications]{--c:#e0561f}.nav[data-page=attendance]{--c:#1f8a5b}
+.nav[data-page=calendar]{--c:#2a5fbf}.nav[data-page=members]{--c:#8a3fb8}.nav[data-page=servants]{--c:#b8860b}
+.nav[data-page=reports]{--c:#0f8b9c}.nav[data-page=followups]{--c:#d1366b}.nav[data-page=visits]{--c:#e0457b}
+.nav[data-page=birthdays]{--c:#f08a00}.nav[data-page=deleted]{--c:#6b6b6b}.nav[data-page=audit]{--c:#3d4a8a}
+.nbadge{animation:beat 1.6s infinite;box-shadow:0 0 0 3px rgba(184,50,50,.25)}
+
+/* ---------- PANELS & PAGE ENTRY ---------- */
+.panel{border-radius:24px;border:1px solid rgba(168,137,69,.25);position:relative;overflow:hidden}
+.page.active{animation:pageIn .55s cubic-bezier(.2,.9,.3,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
+.page .panel::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:linear-gradient(90deg,var(--pg),var(--pg2),var(--gold2))}
+.page .panel::after{content:attr(data-deco);position:absolute;left:14px;top:8px;font-size:84px;opacity:.07;pointer-events:none;transform:rotate(-10deg)}
+.page h2{display:flex;align-items:center;gap:10px;color:var(--pg);font-size:26px;margin-top:6px}
+.page h2 .ic{background:linear-gradient(135deg,var(--pg),var(--pg2));color:#fff;padding:9px;width:2.1em;height:2.1em;border-radius:16px;box-shadow:0 8px 16px -6px var(--pg);margin:0;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-6deg)}}
+.page h3{color:var(--pg)}
+.page h3 .ic{color:var(--pg2)}
+th{background:linear-gradient(180deg,var(--pgsoft),#fff);color:var(--pg)}
+
+/* a unique palette per page */
+#page-home,#page-member-home{--pg:#7a1424;--pg2:#c0405a;--pgsoft:#fbe9ed}
+#page-attendance{--pg:#1f8a5b;--pg2:#46c98b;--pgsoft:#e4f6ec}
+#page-members{--pg:#8a3fb8;--pg2:#c58af0;--pgsoft:#f2e8fa}
+#page-servants{--pg:#b8860b;--pg2:#f2c14e;--pgsoft:#fbf2d6}
+#page-reports{--pg:#0f8b9c;--pg2:#4fd0e0;--pgsoft:#dff5f8}
+#page-followups{--pg:#d1366b;--pg2:#ff7aa6;--pgsoft:#fde6ee}
+#page-calendar{--pg:#2a5fbf;--pg2:#6fa3ff;--pgsoft:#e4edfd}
+#page-notifications{--pg:#e0561f;--pg2:#ffa066;--pgsoft:#fdeadf}
+#page-visits{--pg:#e0457b;--pg2:#ffb35c;--pgsoft:#fdeaf0}
+#page-birthdays{--pg:#f08a00;--pg2:#ff5fa2;--pgsoft:#fff1da}
+#page-audit{--pg:#3d4a8a;--pg2:#7f8fe0;--pgsoft:#e6e9f8}
+#page-deleted{--pg:#6b6b6b;--pg2:#a9a9a9;--pgsoft:#eeeeee}
+
+/* ---------- STAT CARDS ---------- */
+.stat{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(160deg,#fff,var(--pgsoft));border:1px solid color-mix(in srgb,var(--pg) 25%,#fff);
+  transition:transform .3s cubic-bezier(.3,1.6,.5,1),box-shadow .3s;font-weight:bold;color:#5b4a4d}
+.stat::before{content:"";position:absolute;width:90px;height:90px;border-radius:50%;background:radial-gradient(var(--pg2),transparent 70%);opacity:.25;top:-30px;right:-30px}
+.stat:hover{transform:translateY(-8px) rotate(-1.5deg);box-shadow:0 18px 30px -14px var(--pg)}
+.stat>.ic{width:34px;height:34px;padding:7px;border-radius:14px;background:linear-gradient(135deg,var(--pg),var(--pg2));color:#fff!important;box-sizing:content-box;margin-bottom:8px}
+.stat strong{font-size:32px;background:linear-gradient(135deg,var(--pg),var(--pg2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat strong.pop{animation:numPop .5s}
+@keyframes numPop{50%{transform:scale(1.35)}}
+
+/* ---------- CARDS & TABLES ---------- */
+.card{border-radius:18px;background:linear-gradient(135deg,#fff,var(--pgsoft));border:1px solid color-mix(in srgb,var(--pg) 22%,#fff);border-inline-start:6px solid var(--pg);
+  transition:transform .25s,box-shadow .25s;animation:cardIn .5s both}
+.card:hover{transform:translateX(-6px) scale(1.01);box-shadow:0 12px 24px -14px var(--pg)}
+@keyframes cardIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.table-wrap{border-radius:18px;box-shadow:0 10px 24px -16px var(--pg);border:1px solid color-mix(in srgb,var(--pg) 20%,#fff)}
+tbody tr{transition:background .2s,transform .2s}
+tbody tr:hover{background:var(--pgsoft)}
+tbody tr:nth-child(even){background:rgba(0,0,0,.015)}
+.badge{background:linear-gradient(135deg,var(--pgsoft),#fff);color:var(--pg);border:1px solid color-mix(in srgb,var(--pg) 30%,#fff);font-weight:bold}
+a{color:var(--pg);font-weight:bold;text-decoration:none}
+a:hover{text-decoration:underline wavy}
+
+/* ---------- NOTIFICATIONS ---------- */
+.notif{border-radius:18px;border-right-width:8px;transition:transform .25s,box-shadow .25s;animation:cardIn .5s both}
+.notif:hover{transform:translateX(-6px);box-shadow:0 14px 26px -16px rgba(0,0,0,.45)}
+.notif.danger{animation:cardIn .5s both,dangerGlow 2.5s ease-in-out infinite}
+@keyframes dangerGlow{50%{box-shadow:0 0 0 4px rgba(184,50,50,.15)}}
+.notif summary{padding:4px 0}
+
+/* ---------- CALENDAR ---------- */
+.cal-d{border-radius:14px;transition:transform .2s,box-shadow .2s}
+.cal-d.has:hover{transform:translateY(-5px) scale(1.06);box-shadow:0 12px 20px -10px #2a5fbf;z-index:2}
+.cal-d.fri{background:linear-gradient(160deg,#fffaf0,#fdeec4)}
+.cal-d.today{animation:todayPulse 2s infinite}
+@keyframes todayPulse{50%{box-shadow:0 0 0 2px var(--wine) inset,0 0 0 5px rgba(122,20,36,.15)}}
+.cal-h{background:linear-gradient(180deg,var(--pgsoft),transparent);border-radius:10px;color:var(--pg)}
+.pill{border-radius:20px;box-shadow:0 3px 6px -3px rgba(0,0,0,.4)}
+
+/* ---------- BIRTHDAYS (party mode) ---------- */
+#page-birthdays .card{background:linear-gradient(135deg,#fff8e8,#ffe3f0);position:relative}
+#page-birthdays .card::before{content:"🎂";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:38px;animation:bob 2.5s infinite}
+
+/* ---------- MODALS ---------- */
+#modal .box,#editModal .box{border-radius:26px;border-top:8px solid var(--wine);animation:popIn .45s cubic-bezier(.2,1.3,.3,1) both;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+#modal,#editModal{backdrop-filter:blur(6px);background:rgba(41,12,20,.55)}
+
+/* ---------- TOASTS ---------- */
+.toast{border-radius:16px;animation:toastIn .5s cubic-bezier(.2,1.3,.3,1) both;backdrop-filter:blur(6px)}
+@keyframes toastIn{from{opacity:0;transform:translateY(40px) scale(.8)}to{opacity:1;transform:none}}
+
+/* ---------- CONFETTI ---------- */
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:100;pointer-events:none;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--rot));opacity:.9}}
+
+/* scrollbar + selection */
+::selection{background:var(--gold2);color:#3a0c14}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--wine),var(--gold));border-radius:10px}
+::-webkit-scrollbar-track{background:#f1e6cc}
+
+@media(max-width:750px){
+  .sidebar{position:static}
+  .sidebar button.nav.active{transform:none}
+  .page h2{font-size:22px}
+  .page .panel::after{font-size:60px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<script id="shenouda-skin-js">
+(function(){
+  "use strict";
+  function boot(){
+  var $=function(id){return document.getElementById(id)};
+
+  /* 1) floating background blobs */
+  ["b1","b2","b3"].forEach(function(c){var d=document.createElement("div");d.className="blob "+c;document.body.appendChild(d);});
+
+  /* 2) big faded emoji decoration for every page panel */
+  var deco={"home":"🏠","member-home":"🙏","attendance":"✅","members":"👥","servants":"🛡️","reports":"📊","followups":"📞","calendar":"📅","notifications":"🔔","visits":"💗","birthdays":"🎉","audit":"📜","deleted":"🗃️"};
+  Object.keys(deco).forEach(function(k){
+    var p=$("page-"+k); if(!p)return;
+    var panel=p.querySelector(".panel"); if(panel)panel.setAttribute("data-deco",deco[k]);
+  });
+
+  /* 3) ripple effect on every button */
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("button"); if(!b)return;
+    var r=b.getBoundingClientRect(),s=Math.max(r.width,r.height);
+    var el=document.createElement("span"); el.className="ripple";
+    el.style.width=el.style.height=s+"px";
+    el.style.left=(e.clientX-r.left-s/2)+"px";
+    el.style.top=(e.clientY-r.top-s/2)+"px";
+    b.appendChild(el); setTimeout(function(){el.remove()},700);
+  });
+
+  /* 4) stagger the entrance of cards/notifications whenever lists re-render */
+  function stagger(root){
+    var items=root.querySelectorAll(".card,.notif");
+    for(var i=0;i<items.length;i++){items[i].style.animationDelay=Math.min(i*45,600)+"ms";}
+  }
+  ["presentList","absentList","followList","notifList","birthdayList","deletedList","calDetail"].forEach(function(id){
+    var el=$(id); if(!el)return;
+    new MutationObserver(function(){stagger(el)}).observe(el,{childList:true});
+  });
+
+  /* 5) animated count-up for stat numbers */
+  var busy=new WeakSet();
+  function countUp(el){
+    if(busy.has(el))return;
+    var t=el.textContent.trim(), m=t.match(/^(\d+)(%?)$/);
+    if(!m)return;
+    var to=parseInt(m[1],10),suf=m[2]; if(to===0||to>100000)return;
+    busy.add(el);
+    var start=performance.now(),dur=700;
+    (function step(now){
+      var p=Math.min(1,(now-start)/dur),e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(to*e)+suf;
+      if(p<1)requestAnimationFrame(step);
+      else{el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop");setTimeout(function(){busy.delete(el)},50);}
+    })(start);
+  }
+  document.querySelectorAll(".stat strong").forEach(function(el){
+    new MutationObserver(function(){countUp(el)}).observe(el,{childList:true,characterData:true,subtree:true});
+  });
+
+  /* 6) confetti when attendance is registered successfully */
+  function confetti(){
+    var colors=["#7a1424","#e2c36b","#46c98b","#6fa3ff","#ff7aa6","#f2c14e","#a074ee"];
+    for(var i=0;i<70;i++){
+      var c=document.createElement("div"); c.className="confetti";
+      c.style.left=Math.random()*100+"vw";
+      c.style.background=colors[i%colors.length];
+      c.style.setProperty("--dx",(Math.random()*240-120)+"px");
+      c.style.setProperty("--rot",(Math.random()*900-450)+"deg");
+      c.style.animationDuration=(2.2+Math.random()*2)+"s";
+      c.style.animationDelay=(Math.random()*.5)+"s";
+      document.body.appendChild(c); setTimeout(function(n){n.remove()},5200,c);
+    }
+  }
+  var banner=$("checkinBanner");
+  if(banner){
+    new MutationObserver(function(){
+      if(banner.classList.contains("hidden"))return;
+      var u=banner.querySelector("use");
+      if(u&&u.getAttribute("href")==="#i-check-circle")confetti();
+    }).observe(banner,{childList:true});
+  }
+
+  /* 7) subtle 3D tilt on stat cards (desktop only) */
+  if(window.matchMedia&&window.matchMedia("(hover:hover)").matches){
+    document.addEventListener("mousemove",function(e){
+      var s=e.target.closest&&e.target.closest(".stat"); if(!s)return;
+      var r=s.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      s.style.transform="perspective(500px) rotateY("+(x*10)+"deg) rotateX("+(-y*10)+"deg) translateY(-6px)";
+    });
+    document.addEventListener("mouseout",function(e){
+      var s=e.target.closest&&e.target.closest(".stat"); if(s)s.style.transform="";
+    });
+  }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+  else boot();
+})();
+</script>
+
 </body>
 </html>
