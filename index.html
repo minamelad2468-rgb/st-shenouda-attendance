@@ -256,6 +256,10 @@ tr:last-child td{border-bottom:0}
 <div id="editModal" class="hidden" role="dialog" aria-modal="true">
 <div class="box">
 <h3 id="editTitle"></h3>
+<div id="eTypeWrap" class="hidden">
+<label for="eType">النوع</label>
+<select id="eType" onchange="onTypeChange()"><option value="member">عضو</option><option value="servant">خادم</option></select>
+</div>
 <label for="eName">الاسم</label>
 <input id="eName">
 <label for="eBirth">تاريخ الميلاد</label>
@@ -549,17 +553,25 @@ function canEdit(){return ["system_admin","servant_admin"].includes(currentProfi
 let editing=null;
 function editMember(id){openEdit("member",id);}
 function editServant(id){openEdit("servant",id);}
+function setExtra(kind,value){
+ $("eExtraLabel").textContent=kind==="member"?"الفرقة الدراسية":"المسؤولية";
+ $("eExtra").value=value||"";
+ $("eYears").innerHTML=kind==="member"?studyYears.map(y=>`<option value="${y}">`).join(""):"";
+}
+function onTypeChange(){setExtra($("eType").value,"");}
 function openEdit(kind,id){
  if(!canEdit())return;
  const x=(kind==="member"?members:servants).find(p=>p.id===id);if(!x)return;
  editing={kind,id};
+ /* تغيير النوع: لمسؤول النظام فقط، وليس لنفسه، وللأعضاء والخدام العاديين فقط */
+ const canType=currentProfile.role==="system_admin"&&id!==currentProfile.id&&["member","viewer"].includes(x.role);
+ $("eTypeWrap").classList.toggle("hidden",!canType);
+ $("eType").value=kind;
  $("editTitle").textContent="تعديل بيانات "+(x.full_name||"");
  $("eName").value=x.full_name||"";
  $("eBirth").value=x.birth_date||"";
  $("eArea").value=x.residential_area||"";
- $("eExtra").value=kind==="member"?(x.study_year||""):(x.responsibility||"");
- $("eExtraLabel").textContent=kind==="member"?"الفرقة الدراسية":"المسؤولية";
- $("eYears").innerHTML=kind==="member"?studyYears.map(y=>`<option value="${y}">`).join(""):"";
+ setExtra(kind,kind==="member"?x.study_year:x.responsibility);
  $("editMsg").textContent="";
  $("editModal").classList.remove("hidden");
  $("eName").focus();
@@ -569,23 +581,31 @@ async function saveEdit(){
  if(!editing||!canEdit())return;
  const {kind,id}=editing;
  const name=$("eName").value.trim();
- if(!name){$("editMsg").textContent="الاسم لا يمكن أن يكون فارغاً";return;}
+ const extra=$("eExtra").value.trim();
+ const newKind=$("eTypeWrap").classList.contains("hidden")?kind:$("eType").value;
+ if(!name){$("editMsg").style.color="#c0392b";$("editMsg").textContent="الاسم لا يمكن أن يكون فارغاً";return;}
+ if(newKind!==kind&&!confirm(newKind==="servant"?"تحويل "+name+" من عضو إلى خادم؟":"تحويل "+name+" من خادم إلى عضو؟"))return;
  try{
   $("editMsg").style.color="#27834b";$("editMsg").textContent="جاري الحفظ...";
+  if(newKind!==kind){
+   const t=await supabaseClient.rpc("change_person_type",{p_profile_id:id,p_type:newKind,p_detail:extra});
+   if(t.error)throw t.error;
+   const res=typeof t.data==="string"?JSON.parse(t.data):t.data;
+   if(!res?.success)throw new Error(res?.message||"تعذر تغيير النوع");
+  }
   const p=await supabaseClient.from("profiles")
    .update({full_name:name,birth_date:$("eBirth").value||null,residential_area:$("eArea").value.trim()})
    .eq("id",id).select("id");
   if(p.error)throw p.error;
   if(!p.data?.length)throw new Error("لا توجد صلاحية لتعديل جدول profiles (راجع سياسات RLS)");
-  const extra=$("eExtra").value.trim();
-  const r=kind==="member"
+  const r=newKind==="member"
    ?await supabaseClient.from("members").update({study_year:extra}).eq("profile_id",id).select("profile_id")
    :await supabaseClient.from("servants").update({responsibility:extra}).eq("profile_id",id).select("profile_id");
   if(r.error)throw r.error;
   if(!r.data?.length)throw new Error("لا توجد صلاحية لتعديل هذا الحقل (راجع سياسات RLS)");
   closeEdit();
   await loadPeople();
-  msg("تم حفظ التعديلات");
+  msg(newKind!==kind?"تم تحويل "+name+" وحفظ التعديلات":"تم حفظ التعديلات");
  }catch(e){$("editMsg").style.color="#c0392b";$("editMsg").textContent="تعذر الحفظ: "+e.message;}
 }
 
