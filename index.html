@@ -593,16 +593,13 @@ async function saveEdit(){
    const res=typeof t.data==="string"?JSON.parse(t.data):t.data;
    if(!res?.success)throw new Error(res?.message||"تعذر تغيير النوع");
   }
-  const p=await supabaseClient.from("profiles")
-   .update({full_name:name,birth_date:$("eBirth").value||null,residential_area:$("eArea").value.trim()})
-   .eq("id",id).select("id");
-  if(p.error)throw p.error;
-  if(!p.data?.length)throw new Error("لا توجد صلاحية لتعديل جدول profiles (راجع سياسات RLS)");
-  const r=newKind==="member"
-   ?await supabaseClient.from("members").update({study_year:extra}).eq("profile_id",id).select("profile_id")
-   :await supabaseClient.from("servants").update({responsibility:extra}).eq("profile_id",id).select("profile_id");
-  if(r.error)throw r.error;
-  if(!r.data?.length)throw new Error("لا توجد صلاحية لتعديل هذا الحقل (راجع سياسات RLS)");
+  const u=await supabaseClient.rpc("admin_update_person",{
+   p_profile_id:id,p_full_name:name,p_birth_date:$("eBirth").value||null,
+   p_area:$("eArea").value.trim(),p_kind:newKind,p_extra:extra
+  });
+  if(u.error)throw u.error;
+  const ur=typeof u.data==="string"?JSON.parse(u.data):u.data;
+  if(!ur?.success)throw new Error(ur?.message||"تعذر الحفظ");
   closeEdit();
   await loadPeople();
   msg(newKind!==kind?"تم تحويل "+name+" وحفظ التعديلات":"تم حفظ التعديلات");
