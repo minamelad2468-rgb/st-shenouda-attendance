@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+٪3Chtml lang="ar" dir="rtl"٪3E
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,20 +10,22 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f5f2fa;color:#29213a}
 button,input,select,textarea{font:inherit}
-button{border:0;border-radius:10px;padding:12px 15px;background:#59368a;color:white;font-weight:bold;cursor:pointer}
+button{border:0;border-radius:10px;padding:12px 15px;background:#59368a;color:#fff;font-weight:bold;cursor:pointer}
 button.secondary{background:#eee8f5;color:#59368a}
-button.danger{background:#b83232}
-input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:9px;background:white}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a88945;outline-offset:2px}
+input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:9px;background:#fff}
 textarea{min-height:75px;resize:vertical}
 .hidden{display:none!important}
 .container{max-width:1100px;margin:25px auto;padding:16px}
-.auth{max-width:440px;margin:45px auto;background:white;padding:25px;border-radius:18px;box-shadow:0 8px 30px #35205a15}
+.auth{max-width:440px;margin:45px auto;background:#fff;padding:25px;border-radius:18px;box-shadow:0 8px 30px #35205a15}
+.auth button{width:100%;margin-top:8px}
 h1,h2,h3{color:#59368a}
 h1{text-align:center}
 .sub{text-align:center;color:#777}
 #message{text-align:center;padding:10px;line-height:1.6;white-space:pre-wrap}
 .layout{display:grid;grid-template-columns:220px 1fr;gap:16px}
-.sidebar,.panel,.stat{background:white;border-radius:15px;padding:17px;box-shadow:0 5px 20px #35205a0c}
+.layout.single{grid-template-columns:1fr}
+.sidebar,.panel,.stat{background:#fff;border-radius:15px;padding:17px;box-shadow:0 5px 20px #35205a0c}
 .sidebar button{width:100%;margin:5px 0;text-align:right}
 .sidebar .active{background:#a88945}
 .content{min-width:0}
@@ -32,19 +34,21 @@ h1{text-align:center}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:15px 0}
 .stat{text-align:center}
 .stat strong{display:block;font-size:25px;color:#59368a;margin-top:8px}
-.table-wrap{overflow-x:auto;background:white;border-radius:12px;margin:12px 0}
+.table-wrap{overflow-x:auto;background:#fff;border-radius:12px;margin:12px 0}
 table{border-collapse:collapse;width:100%;min-width:650px}
 th,td{padding:12px;border-bottom:1px solid #eee;text-align:right}
 th{background:#f1ebf7;color:#59368a}
 tr:last-child td{border-bottom:0}
 .card{background:#f8f5fb;border:1px solid #e5dcef;border-radius:12px;padding:14px;margin:10px 0;line-height:1.8}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.row>*{flex:1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#eee8f5;color:#59368a;font-size:12px}
 .muted{color:#777;font-size:13px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .toolbar>*{flex:1;min-width:130px}
-hr{border:0;border-top:1px solid #eee;margin:18px 0}
+#modal{position:fixed;inset:0;background:#29213a99;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+#modal .box{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:400px}
+#modal .btns{display:flex;gap:8px}
+#modal .btns button{flex:1}
 @media(max-width:750px){
  .layout{grid-template-columns:1fr}
  .sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
@@ -54,25 +58,24 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 </style>
 </head>
 <body>
-
-<!-- تسجيل الدخول -->
+ 
 <section id="authArea" class="auth">
 <h1>St. Shenouda</h1>
 <p class="sub">أسرة الأنبا شنودة رئيس المتوحدين</p>
-
+ 
 <div id="login">
 <h3>تسجيل الدخول</h3>
-<input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel">
-<input id="loginPassword" type="password" placeholder="كلمة المرور">
+<input id="loginPhone" placeholder="رقم الموبايل" inputmode="tel" autocomplete="tel">
+<input id="loginPassword" type="password" placeholder="كلمة المرور" autocomplete="current-password">
 <button onclick="login()">دخول</button>
 <button class="secondary" onclick="showSignup()">إنشاء حساب جديد</button>
 </div>
-
+ 
 <div id="signup" class="hidden">
 <h3>إنشاء حساب جديد</h3>
 <input id="fullName" placeholder="الاسم بالكامل">
 <input id="phone" placeholder="رقم الموبايل" inputmode="tel">
-<input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل">
+<input id="password" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل" autocomplete="new-password">
 <input id="code" placeholder="كود التفعيل">
 <input id="birthDate" type="date" aria-label="تاريخ الميلاد">
 <input id="education" placeholder="المرحلة الدراسية أو السن">
@@ -80,10 +83,9 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <button onclick="signup()">إنشاء الحساب</button>
 <button class="secondary" onclick="showLogin()">رجوع</button>
 </div>
-<p id="authMessage"></p>
+<p id="authMessage" style="text-align:center;line-height:1.6"></p>
 </section>
-
-<!-- التطبيق -->
+ 
 <main id="appArea" class="container hidden">
 <header class="panel">
 <h1>St. Shenouda</h1>
@@ -97,9 +99,9 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 </div>
 <p id="message"></p>
 </header>
-
-<div class="layout">
-<aside class="sidebar">
+ 
+<div class="layout" id="layout">
+<aside class="sidebar" id="sidebar">
 <h3>القائمة الرئيسية</h3>
 <button class="nav active" data-page="home" onclick="openPage('home',this)">الرئيسية</button>
 <button class="nav" data-page="attendance" onclick="openPage('attendance',this)">الحضور والغياب</button>
@@ -109,10 +111,17 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <button class="nav" data-page="followups" onclick="openPage('followups',this)">المتابعة</button>
 <button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)">أعياد الميلاد</button>
 </aside>
-
+ 
 <div class="content">
-
-<!-- الرئيسية -->
+ 
+<section id="page-member-home" class="page">
+<div class="panel">
+<h2>أهلاً بك ❤️</h2>
+<p>لتسجيل حضورك في اجتماع اليوم، امسح الـ QR الخاص بالاجتماع أو اضغط الزر التالي.</p>
+<button onclick="checkIn()">تسجيل حضوري الآن</button>
+</div>
+</section>
+ 
 <section id="page-home" class="page active">
 <div class="panel">
 <h2>مرحباً بك ❤️</h2>
@@ -125,8 +134,7 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <button onclick="refreshAll()">تحديث البيانات</button>
 </div>
 </section>
-
-<!-- الحضور -->
+ 
 <section id="page-attendance" class="page">
 <div class="panel">
 <h2>الحضور والغياب</h2>
@@ -138,17 +146,14 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <div class="stat">غياب الخدام<strong id="absServants">—</strong></div>
 </div>
 <p id="meetingInfo" class="muted"></p>
-<div class="toolbar">
-<button onclick="loadAttendance()">تحديث الحضور</button>
-</div>
+<div class="toolbar"><button onclick="loadAttendance()">تحديث الحضور</button></div>
 <h3>المسجل حضورهم</h3>
 <div id="presentList"></div>
 <h3>لم يسجلوا الحضور</h3>
 <div id="absentList"></div>
 </div>
 </section>
-
-<!-- الأعضاء -->
+ 
 <section id="page-members" class="page">
 <div class="panel">
 <h2>الأعضاء</h2>
@@ -156,9 +161,7 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <input id="memberSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderMembers()">
 <button onclick="loadPeople()">تحديث القائمة</button>
 </div>
-<div class="stats">
-<div class="stat">إجمالي الأعضاء<strong id="membersCount">—</strong></div>
-</div>
+<div class="stats"><div class="stat">إجمالي الأعضاء<strong id="membersCount">—</strong></div></div>
 <div class="table-wrap">
 <table>
 <thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th><th>تعديل</th></tr></thead>
@@ -167,18 +170,17 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 </div>
 </div>
 </section>
-
-<!-- الخدام -->
+ 
 <section id="page-servants" class="page">
 <div class="panel">
 <h2>الخدام</h2>
 <div id="staffAdminTools" class="card hidden">
 <h3>إضافة خادم جديد</h3>
 <input id="staffName" placeholder="اسم الخادم بالكامل">
-<input id="staffPhone" placeholder="رقم الموبايل">
-<input id="staffPassword" type="password" placeholder="كلمة المرور">
+<input id="staffPhone" placeholder="رقم الموبايل" inputmode="tel">
+<input id="staffPassword" type="password" placeholder="كلمة المرور - 8 أحرف على الأقل" autocomplete="new-password">
 <button onclick="createStaff()">إضافة الخادم</button>
-<p class="muted">حسابات الخدام الجديدة تُنشأ بدور viewer من خلال دالة create-staff الحالية.</p>
+<p class="muted">يُنشأ الحساب بصلاحية "خادم (عرض فقط)" من خلال دالة create-staff.</p>
 </div>
 <div class="toolbar">
 <input id="servantSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderServants()">
@@ -193,8 +195,7 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 </div>
 </div>
 </section>
-
-<!-- التقارير -->
+ 
 <section id="page-reports" class="page">
 <div class="panel">
 <h2>التقارير والإحصائيات</h2>
@@ -215,8 +216,7 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <div id="reportDetails"></div>
 </div>
 </section>
-
-<!-- المتابعة -->
+ 
 <section id="page-followups" class="page">
 <div class="panel">
 <h2>متابعة الأعضاء</h2>
@@ -228,8 +228,7 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <div id="followList"></div>
 </div>
 </section>
-
-<!-- أعياد الميلاد -->
+ 
 <section id="page-birthdays" class="page">
 <div class="panel">
 <h2>أعياد الميلاد القادمة</h2>
@@ -237,26 +236,39 @@ hr{border:0;border-top:1px solid #eee;margin:18px 0}
 <div id="birthdayList"></div>
 </div>
 </section>
-
+ 
 </div>
 </div>
 </main>
-
+ 
+<div id="modal" class="hidden" role="dialog" aria-modal="true">
+<div class="box">
+<h3 id="modalTitle"></h3>
+<input id="modalInput" list="modalList">
+<datalist id="modalList"></datalist>
+<div class="btns">
+<button id="modalOk">حفظ</button>
+<button class="secondary" id="modalCancel">إلغاء</button>
+</div>
+</div>
+</div>
+ 
 <script>
 const SUPABASE_URL="https://amrfujhlikbaubepiuye.supabase.co";
 const SUPABASE_KEY="sb_publishable_nIsrayREACP6CFMtiYX1Yg_uRnWlHWu";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
 const STAFF_FUNCTION_URL=SUPABASE_URL+"/functions/v1/create-staff";
-
+ 
 const $=id=>document.getElementById(id);
 let currentProfile=null;
 let members=[],servants=[],meetings=[],attendance=[],followups=[];
-let refreshTimer=null;
-
+let refreshTimer=null,peopleLoaded=false;
+ 
 const staffRoles=["system_admin","servant_admin","followup","viewer"];
 const followStatuses=["لم يتم التواصل","جاري المتابعة","تم التواصل","يحتاج متابعة مرة أخرى"];
-
+const studyYears=["أولى","تانية","تالتة","رابعة","خريج"];
+ 
 function msg(text,error=false){
  $("message").textContent=text||"";
  $("message").style.color=error?"#c0392b":"#27834b";
@@ -265,6 +277,35 @@ function authMsg(text,error=false){
  $("authMessage").textContent=text||"";
  $("authMessage").style.color=error?"#c0392b":"#27834b";
 }
+function safe(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+/* يحوّل الأرقام العربية إلى إنجليزية ويشيل المسافات */
+function cleanPhone(v){
+ return String(v||"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[\s-]/g,"");
+}
+const cairoToday=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Africa/Cairo"});
+const isStaff=()=>staffRoles.includes(currentProfile?.role);
+ 
+/* نافذة تعديل بدل prompt */
+function askValue(title,value,options){
+ return new Promise(resolve=>{
+  $("modalTitle").textContent=title;
+  $("modalInput").value=value||"";
+  $("modalList").innerHTML=(options||[]).map(o=>`<option value="${safe(o)}">`).join("");
+  $("modal").classList.remove("hidden");
+  $("modalInput").focus();
+  const close=v=>{
+   $("modal").classList.add("hidden");
+   $("modalOk").onclick=$("modalCancel").onclick=$("modalInput").onkeydown=null;
+   resolve(v);
+  };
+  $("modalOk").onclick=()=>close($("modalInput").value);
+  $("modalCancel").onclick=()=>close(null);
+  $("modalInput").onkeydown=e=>{if(e.key==="Enter")close($("modalInput").value);if(e.key==="Escape")close(null);};
+ });
+}
+ 
 function showLogin(){
  $("login").classList.remove("hidden");
  $("signup").classList.add("hidden");
@@ -286,13 +327,15 @@ function openPage(name,button){
  if(name==="followups")loadFollowups();
  if(name==="birthdays")renderBirthdays();
 }
+ 
+/* تسجيل الدخول */
 async function callLoginFunction(data){
  const response=await fetch(FUNCTION_URL,{
   method:"POST",
   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY},
   body:JSON.stringify(data)
  });
- const result=await response.json();
+ const result=await response.json().catch(()=>({}));
  if(!response.ok||result.error)throw new Error(result.error||"تعذر تنفيذ العملية");
  return result;
 }
@@ -308,7 +351,7 @@ async function login(){
   authMsg("جاري تسجيل الدخول...");
   const result=await callLoginFunction({
    action:"login",
-   phone:$("loginPhone").value.trim(),
+   phone:cleanPhone($("loginPhone").value),
    password:$("loginPassword").value
   });
   await setSession(result);
@@ -317,8 +360,9 @@ async function login(){
 async function signup(){
  try{
   authMsg("جاري إنشاء الحساب...");
-  const phone=$("phone").value.trim();
+  const phone=cleanPhone($("phone").value);
   const password=$("password").value;
+  if(!$("fullName").value.trim()||!phone)throw new Error("اكتب الاسم ورقم الموبايل");
   if(password.length<8)throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
   await callLoginFunction({
    action:"signup",phone,password,
@@ -332,13 +376,21 @@ async function signup(){
   await setSession(result);
  }catch(e){authMsg(e.message,true);}
 }
+document.addEventListener("keydown",e=>{
+ if(e.key!=="Enter")return;
+ if(e.target.id==="loginPhone"||e.target.id==="loginPassword")login();
+});
+ 
+function roleName(role){
+ return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"خادم (عرض فقط)",member:"عضو"})[role]||role||"غير محدد";
+}
 async function loadProfile(){
  const {data:{user}}=await supabaseClient.auth.getUser();
  if(!user){showAuth();return;}
  const {data,error}=await supabaseClient.from("profiles")
   .select("id,full_name,phone,birth_date,education_or_age,residential_area,role,is_active")
   .eq("id",user.id).single();
- if(error){authMsg("تعذر تحميل الملف الشخصي: "+error.message,true);return;}
+ if(error){showAuth();authMsg("تعذر تحميل الملف الشخصي: "+error.message,true);return;}
  if(!data.is_active){
   await supabaseClient.auth.signOut();
   showAuth();
@@ -350,40 +402,41 @@ async function loadProfile(){
  $("appArea").classList.remove("hidden");
  $("welcomeName").textContent=data.full_name||"عضو الأسرة";
  $("welcomeRole").textContent="الدور: "+roleName(data.role);
- const staff=staffRoles.includes(data.role);
- document.querySelectorAll(".nav").forEach(b=>{
-  b.classList.toggle("hidden",!staff);
- });
+ const staff=isStaff();
+ $("sidebar").classList.toggle("hidden",!staff);
+ $("layout").classList.toggle("single",!staff);
  $("staffAdminTools").classList.toggle("hidden",data.role!=="system_admin");
- if(!staff){
-  document.querySelectorAll(".nav").forEach(b=>b.classList.add("hidden"));
-  $("page-home").classList.remove("active");
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+ if(staff){
+  $("page-home").classList.add("active");
+  document.querySelector('.nav[data-page="home"]').classList.add("active");
+ }else{
   $("page-member-home").classList.add("active");
-  $("message").textContent="مرحباً بك في أسرة الأنبا شنودة ❤️";
  }
- msg("تم تسجيل الدخول بنجاح ❤️");
+ msg(staff?"تم تسجيل الدخول بنجاح ❤️":"مرحباً بك في أسرة الأنبا شنودة ❤️");
  await checkInFromLink();
  if(staff)await refreshAll();
  if(refreshTimer)clearInterval(refreshTimer);
  refreshTimer=setInterval(()=>{
-  if($("page-attendance").classList.contains("active"))loadAttendance();
+  if(isStaff()&&$("page-attendance").classList.contains("active"))loadAttendance();
  },20000);
 }
-function roleName(role){
- return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"مشرف / خادم",member:"عضو"})[role]||role||"غير محدد";
-}
 function showAuth(){
+ if(refreshTimer)clearInterval(refreshTimer);
  $("authArea").classList.remove("hidden");
  $("appArea").classList.add("hidden");
  showLogin();
 }
 async function logout(){
- if(refreshTimer)clearInterval(refreshTimer);
  await supabaseClient.auth.signOut();
- currentProfile=null;
+ currentProfile=null;peopleLoaded=false;
+ members=[];servants=[];meetings=[];attendance=[];followups=[];
  showAuth();
  authMsg("تم تسجيل الخروج");
 }
+ 
+/* تسجيل الحضور */
 async function checkInFromLink(){
  if(new URLSearchParams(location.search).get("checkin")!=="1")return;
  await checkIn();
@@ -395,12 +448,15 @@ async function checkIn(){
   if(error)throw error;
   const result=typeof data==="string"?JSON.parse(data):data;
   msg(result?.message||(result?.success?"تم تسجيل الحضور بنجاح":"تعذر تسجيل الحضور"),!result?.success);
-  if(staffRoles.includes(currentProfile?.role))await loadAttendance();
+  /* ننظف الرابط حتى لا يتكرر التسجيل عند إعادة تحميل الصفحة */
+  if(new URLSearchParams(location.search).get("checkin")==="1")history.replaceState({},"",location.pathname);
+  if(isStaff())await loadAttendance();
  }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);}
 }
+ 
 async function createStaff(){
  const full_name=$("staffName").value.trim();
- const phone=$("staffPhone").value.trim();
+ const phone=cleanPhone($("staffPhone").value);
  const password=$("staffPassword").value;
  if(!full_name||!phone||!password){msg("اكتب بيانات الخادم كاملة",true);return;}
  if(password.length<8){msg("كلمة المرور يجب أن تكون 8 أحرف على الأقل",true);return;}
@@ -413,60 +469,54 @@ async function createStaff(){
    headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},
    body:JSON.stringify({full_name,phone,password})
   });
-  const result=await response.json();
+  const result=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(result.error||"تعذر إنشاء الحساب");
-  $("staffName").value="";
-  $("staffPhone").value="";
-  $("staffPassword").value="";
+  $("staffName").value="";$("staffPhone").value="";$("staffPassword").value="";
   msg("تم إنشاء حساب الخادم بنجاح ❤️");
   await loadPeople();
  }catch(e){msg(e.message,true);}
 }
-
-/* تحميل بيانات الأشخاص */
+ 
+/* الأعضاء والخدام */
 async function loadPeople(){
- if(!currentProfile||!staffRoles.includes(currentProfile.role))return;
+ if(!isStaff())return;
  msg("جاري تحميل بيانات الأعضاء والخدام...");
  try{
+  const cols="id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active";
   const [m,s]=await Promise.all([
-   supabaseClient.from("members")
-    .select("profile_id,study_year,profiles!members_profile_id_fkey(id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active)")
-    .order("created_at"),
-   supabaseClient.from("servants")
-    .select("profile_id,responsibility,profiles!servants_profile_id_fkey(id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active)")
-    .order("created_at")
+   supabaseClient.from("members").select(`profile_id,study_year,created_at,profiles!members_profile_id_fkey(${cols})`).order("created_at"),
+   supabaseClient.from("servants").select(`profile_id,responsibility,created_at,profiles!servants_profile_id_fkey(${cols})`).order("created_at")
   ]);
   if(m.error)throw new Error("الأعضاء: "+m.error.message);
   if(s.error)throw new Error("الخدام: "+s.error.message);
-  members=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||""}));
-  servants=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role)}));
+  members=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||"",joined:x.created_at}));
+  servants=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role),joined:x.created_at}));
+  peopleLoaded=true;
   $("homeMembers").textContent=members.length;
   $("homeServants").textContent=servants.length;
   $("membersCount").textContent=members.length;
   $("servantsCount").textContent=servants.length;
-  renderMembers();
-  renderServants();
-  renderBirthdays();
+  renderMembers();renderServants();renderBirthdays();
   msg("تم تحميل بيانات الأسرة");
- }catch(e){
-  msg("تعذر تحميل القوائم: "+e.message,true);
- }
+ }catch(e){msg("تعذر تحميل القوائم: "+e.message,true);}
 }
-function safe(value){
- return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function ensurePeople(){if(!peopleLoaded)await loadPeople();}
+ 
+function attendanceCount(id){
+ return attendance.filter(a=>a.member_id===id).length;
 }
-function attendanceCount(profileId){
- return attendance.filter(a=>a.member_id===profileId).length;
+/* النسبة تُحسب من تاريخ انضمام الشخص فقط */
+function attendanceRate(p){
+ const from=p.joined?new Date(p.joined).toLocaleDateString("en-CA",{timeZone:"Africa/Cairo"}):"";
+ const ids=new Set(meetings.filter(m=>!from||m.meeting_date>=from).map(m=>m.id));
+ if(!ids.size)return 0;
+ const att=new Set(attendance.filter(a=>a.member_id===p.id&&ids.has(a.meeting_id)).map(a=>a.meeting_id)).size;
+ return Math.min(100,Math.round(att/ids.size*100));
 }
-function attendanceRate(profileId){
- const total=meetings.length;
- return total?Math.round(attendanceCount(profileId)/total*100):0;
-}
-function followFor(id){
- return followups.find(x=>x.member_id===id);
-}
+function followFor(id){return followups.find(x=>x.member_id===id);}
+ 
 function renderMembers(){
- const q=($("memberSearch")?.value||"").trim().toLowerCase();
+ const q=($("memberSearch").value||"").trim().toLowerCase();
  const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
  $("membersTable").innerHTML=rows.map(x=>{
   const f=followFor(x.id);
@@ -475,26 +525,26 @@ function renderMembers(){
    <td>${safe(x.birth_date||"—")}</td>
    <td>${safe(x.study_year||"غير مسجل")}</td>
    <td>${safe(x.residential_area||"—")}</td>
-   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x.id)}%</td>
+   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
    <td>${safe(f?.status||"لم يتم التواصل")}</td>
    <td><button class="secondary" onclick="editMember('${x.id}')">تعديل</button></td>
   </tr>`;
  }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
 }
 function renderServants(){
- const q=($("servantSearch")?.value||"").trim().toLowerCase();
+ const q=($("servantSearch").value||"").trim().toLowerCase();
  const rows=servants.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
  $("servantsTable").innerHTML=rows.map(x=>`<tr>
- <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
- <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
- <td>${safe(x.residential_area||"—")}</td>
- <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x.id)}%</td>
- <td><button class="secondary" onclick="editServant('${x.id}')">تعديل</button></td>
+  <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
+  <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
+  <td>${safe(x.residential_area||"—")}</td>
+  <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
+  <td><button class="secondary" onclick="editServant('${x.id}')">تعديل</button></td>
  </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
 }
 async function editMember(id){
  const x=members.find(p=>p.id===id);if(!x)return;
- const year=prompt("الفرقة الدراسية (أولى، تانية، تالتة، رابعة، خريج):",x.study_year||"");
+ const year=await askValue("الفرقة الدراسية لـ "+x.full_name,x.study_year,studyYears);
  if(year===null)return;
  try{
   const {error}=await supabaseClient.from("members").update({study_year:year.trim()}).eq("profile_id",id);
@@ -505,16 +555,183 @@ async function editMember(id){
 }
 async function editServant(id){
  const x=servants.find(p=>p.id===id);if(!x)return;
- const responsibility=prompt("مسؤولية أو دور الخادم:",x.responsibility||"");
- if(responsibility===null)return;
+ const r=await askValue("مسؤولية "+x.full_name,x.responsibility);
+ if(r===null)return;
  try{
-  const {error}=await supabaseClient.from("servants").update({responsibility:responsibility.trim()}).eq("profile_id",id);
+  const {error}=await supabaseClient.from("servants").update({responsibility:r.trim()}).eq("profile_id",id);
   if(error)throw error;
   msg("تم تحديث مسؤولية الخادم");
   await loadPeople();
  }catch(e){msg("تعذر تعديل بيانات الخادم: "+e.message,true);}
 }
-
-/* الحضور والاجتماعات */
+ 
+/* الحضور */
+async function fetchAttendanceData(){
+ const [a,m]=await Promise.all([
+  supabaseClient.from("attendance").select("id,meeting_id,member_id,checked_in_at,source").order("checked_in_at",{ascending:false}),
+  supabaseClient.from("meetings").select("id,meeting_date,opens_at,starts_at,closes_at,timezone").order("meeting_date",{ascending:false})
+ ]);
+ if(a.error)throw new Error("الحضور: "+a.error.message);
+ if(m.error)throw new Error("الاجتماعات: "+m.error.message);
+ attendance=a.data||[];
+ meetings=m.data||[];
+}
+function isMeetingClosed(meeting){
+ if(!meeting.closes_at)return false;
+ const close=new Date(meeting.closes_at);
+ return !isNaN(close.getTime())&&Date.now()>close.getTime();
+}
 async function loadAttendance(){
- if(!currentProfi
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  await fetchAttendanceData();
+  const today=cairoToday();
+  const meeting=meetings.find(x=>x.meeting_date===today);
+  const todayRows=meeting?attendance.filter(x=>x.meeting_id===meeting.id):[];
+  const presentIds=new Set(todayRows.map(x=>x.member_id));
+  const mp=members.filter(x=>presentIds.has(x.id));
+  const sp=servants.filter(x=>presentIds.has(x.id));
+  const closed=meeting?isMeetingClosed(meeting):false;
+  const memberIds=new Set(members.map(x=>x.id));
+  $("attMembers").textContent=mp.length;
+  $("attServants").textContent=sp.length;
+  $("homeAttendance").textContent=todayRows.length;
+  $("absMembers").textContent=closed?members.length-mp.length:"—";
+  $("absServants").textContent=closed?servants.length-sp.length:"—";
+  $("meetingInfo").textContent=meeting
+   ?"اجتماع اليوم: "+today+" | "+(closed?"انتهى الاجتماع":"الاجتماع لم ينتهِ بعد")
+   :"لا يوجد اجتماع مسجل اليوم حتى الآن.";
+  const everyone=[...members,...servants];
+  $("presentList").innerHTML=todayRows.map(a=>{
+   const p=everyone.find(x=>x.id===a.member_id);
+   return `<div class="card"><strong>${safe(p?.full_name||"حساب غير معروف")}</strong>
+    <span class="badge">${memberIds.has(a.member_id)?"عضو":"خادم"}</span>
+    <div class="muted">وقت التسجيل: ${safe(new Date(a.checked_in_at).toLocaleString("ar-EG",{timeZone:"Africa/Cairo"}))}</div></div>`;
+  }).join("")||'<p class="muted">لم يسجل أحد الحضور في اجتماع اليوم.</p>';
+  const absent=closed?everyone.filter(x=>!presentIds.has(x.id)):[];
+  $("absentList").innerHTML=absent.map(p=>`<div class="card">${safe(p.full_name)} <span class="badge">${memberIds.has(p.id)?"عضو":"خادم"}</span></div>`).join("")||
+   (closed?'<p class="muted">لا يوجد غياب مسجل.</p>':'<p class="muted">سيظهر الغياب بعد انتهاء الاجتماع.</p>');
+  renderMembers();renderServants();
+ }catch(e){msg("تعذر تحميل الحضور والاجتماعات: "+e.message,true);}
+}
+ 
+/* التقارير */
+async function loadReports(){
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  await fetchAttendanceData();
+  renderReports();
+ }catch(e){msg("تعذر تحميل التقارير: "+e.message,true);}
+}
+function renderReports(){
+ const period=$("reportPeriod").value;
+ let filtered=meetings;
+ if(period==="month"){
+  const month=cairoToday().slice(0,7);
+  filtered=meetings.filter(x=>x.meeting_date?.startsWith(month));
+ }else if(period==="week"){
+  const cutoff=new Date(Date.now()-7*86400000).toLocaleDateString("en-CA",{timeZone:"Africa/Cairo"});
+  filtered=meetings.filter(x=>x.meeting_date>=cutoff);
+ }
+ const ids=new Set(filtered.map(x=>x.id));
+ const rows=attendance.filter(x=>ids.has(x.meeting_id));
+ const mIds=new Set(members.map(x=>x.id));
+ const sIds=new Set(servants.map(x=>x.id));
+ const ma=rows.filter(x=>mIds.has(x.member_id));
+ const sa=rows.filter(x=>sIds.has(x.member_id));
+ const mPossible=members.length*filtered.length;
+ const sPossible=servants.length*filtered.length;
+ $("reportMemberCount").textContent=ma.length;
+ $("reportServantCount").textContent=sa.length;
+ $("reportMemberRate").textContent=(mPossible?Math.min(100,Math.round(ma.length/mPossible*100)):0)+"%";
+ $("reportServantRate").textContent=(sPossible?Math.min(100,Math.round(sa.length/sPossible*100)):0)+"%";
+ $("reportDetails").innerHTML=`<div class="card">عدد الاجتماعات في الفترة: <strong>${filtered.length}</strong><br>
+ إجمالي تسجيلات الحضور: <strong>${rows.length}</strong><br>
+ <span class="muted">النسبة = تسجيلات الحضور ÷ (عدد الأشخاص × عدد الاجتماعات في الفترة).</span></div>`;
+}
+ 
+/* المتابعة */
+async function loadFollowups(){
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  const {data,error}=await supabaseClient.from("followups").select("*");
+  if(error)throw error;
+  followups=data||[];
+  renderFollowups();renderMembers();
+ }catch(e){msg("تعذر تحميل المتابعة: "+e.message,true);}
+}
+function renderFollowups(){
+ const q=($("followSearch").value||"").trim().toLowerCase();
+ const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q));
+ $("followList").innerHTML=rows.map(x=>{
+  const f=followFor(x.id);
+  const status=f?.status||"لم يتم التواصل";
+  return `<div class="card">
+   <strong>${safe(x.full_name)}</strong>
+   <div class="muted">${safe(x.phone||"")}</div>
+   <label for="status-${x.id}">حالة المتابعة</label>
+   <select id="status-${x.id}">${followStatuses.map(s=>`<option ${s===status?"selected":""}>${s}</option>`).join("")}</select>
+   <textarea id="notes-${x.id}" placeholder="ملاحظات المتابعة">${safe(f?.notes||"")}</textarea>
+   <button onclick="saveFollowup('${x.id}')">حفظ المتابعة</button>
+  </div>`;
+ }).join("")||'<p class="muted">لا توجد بيانات أعضاء.</p>';
+}
+async function saveFollowup(id){
+ const status=$("status-"+id).value;
+ const notes=$("notes-"+id).value.trim();
+ const now=new Date().toISOString();
+ const existing=followFor(id);
+ const contact=status==="تم التواصل"?now:(existing?.last_contact_at||null);
+ const run=async extra=>{
+  const body={status,notes,last_contact_at:contact,...extra};
+  return existing
+   ?supabaseClient.from("followups").update(body).eq("id",existing.id)
+   :supabaseClient.from("followups").insert({member_id:id,...body});
+ };
+ try{
+  let r=await run({updated_by:currentProfile.id,updated_at:now});
+  /* لو أعمدة updated_by / updated_at غير موجودة نعيد المحاولة بدونها */
+  if(r.error&&/column|schema cache/i.test(r.error.message))r=await run({});
+  if(r.error)throw r.error;
+  msg("تم حفظ حالة المتابعة");
+  await loadFollowups();
+ }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
+}
+ 
+/* أعياد الميلاد */
+function renderBirthdays(){
+ const all=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ const t=new Date();
+ const start=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+ const upcoming=all.map(p=>{
+  if(!p.birth_date)return null;
+  const [,mo,da]=p.birth_date.split("-").map(Number);
+  let next=new Date(start.getFullYear(),mo-1,da);
+  if(next<start)next=new Date(start.getFullYear()+1,mo-1,da);
+  return {...p,days:Math.round((next-start)/86400000)};
+ }).filter(x=>x&&x.days<=30).sort((a,b)=>a.days-b.days);
+ $("birthdayList").innerHTML=upcoming.map(x=>`<div class="card">
+  <strong>${safe(x.full_name)}</strong> <span class="badge">${x.kind}</span>
+  <div>تاريخ الميلاد: ${safe(x.birth_date)}</div>
+  <div>${x.days===0?"عيد الميلاد اليوم 🎉":"متبقي "+x.days+" يوم"}</div>
+ </div>`).join("")||'<p class="muted">لا توجد أعياد ميلاد خلال الثلاثين يومًا القادمة، أو لم يتم تسجيل تواريخ الميلاد.</p>';
+}
+ 
+async function refreshAll(){
+ await loadPeople();
+ await loadAttendance();
+ await loadFollowups();
+ renderBirthdays();
+}
+async function startApp(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(session)await loadProfile();
+ else showAuth();
+}
+startApp();
+</script>
+</body>
+</html>
