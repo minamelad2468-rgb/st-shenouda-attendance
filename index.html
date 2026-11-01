@@ -10,6 +10,7 @@
 body{margin:0;font-family:Arial,sans-serif;background:#f5f2fa;color:#29213a}
 button,input,select,textarea{font:inherit}
 button{border:0;border-radius:10px;padding:12px 15px;background:#59368a;color:#fff;font-weight:bold;cursor:pointer}
+button.danger{background:#b83232}
 button.secondary{background:#eee8f5;color:#59368a}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a88945;outline-offset:2px}
 input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:9px;background:#fff}
@@ -106,6 +107,7 @@ tr:last-child td{border-bottom:0}
 <button class="secondary" onclick="logout()">تسجيل الخروج</button>
 </div>
 <p id="message"></p>
+<div id="checkinBanner" class="card hidden" role="status"></div>
 </header>
 
 <div class="layout" id="layout">
@@ -118,6 +120,7 @@ tr:last-child td{border-bottom:0}
 <button class="nav" data-page="reports" onclick="openPage('reports',this)">التقارير والإحصائيات</button>
 <button class="nav" data-page="followups" onclick="openPage('followups',this)">المتابعة</button>
 <button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)">أعياد الميلاد</button>
+<button class="nav hidden" id="navDeleted" data-page="deleted" onclick="openPage('deleted',this)">المحذوفون</button>
 </aside>
 
 <div class="content">
@@ -139,7 +142,7 @@ tr:last-child td{border-bottom:0}
 <div class="stat">الخدام<strong id="homeServants">—</strong></div>
 <div class="stat">حضور اليوم<strong id="homeAttendance">—</strong></div>
 </div>
-<button onclick="refreshAll()">تحديث البيانات</button>
+<div class="toolbar"><button onclick="checkIn()">تسجيل حضوري</button><button class="secondary" onclick="refreshAll()">تحديث البيانات</button></div>
 </div>
 </section>
 
@@ -172,7 +175,7 @@ tr:last-child td{border-bottom:0}
 <div class="stats"><div class="stat">إجمالي الأعضاء<strong id="membersCount">—</strong></div></div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th><th>تعديل</th></tr></thead>
+<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th><th>إجراءات</th></tr></thead>
 <tbody id="membersTable"></tbody>
 </table>
 </div>
@@ -189,7 +192,7 @@ tr:last-child td{border-bottom:0}
 <div class="stats"><div class="stat">إجمالي الخدام<strong id="servantsCount">—</strong></div></div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>تعديل</th></tr></thead>
+<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>إجراءات</th></tr></thead>
 <tbody id="servantsTable"></tbody>
 </table>
 </div>
@@ -237,6 +240,14 @@ tr:last-child td{border-bottom:0}
 </div>
 </section>
 
+<section id="page-deleted" class="page">
+<div class="panel">
+<h2>المحذوفون</h2>
+<p class="muted">من تم حذفه لا يظهر في القوائم ولا يستطيع الدخول. اضغط "استرجاع" ليعود كما كان (عضو أو خادم) بنفس بياناته وسجل حضوره.</p>
+<div id="deletedList"></div>
+</div>
+</section>
+
 </div>
 </div>
 </main>
@@ -274,6 +285,7 @@ tr:last-child td{border-bottom:0}
 <button onclick="saveEdit()">حفظ التعديلات</button>
 <button class="secondary" onclick="closeEdit()">إلغاء</button>
 </div>
+<button id="eDelete" class="danger hidden" style="width:100%;margin-top:10px" onclick="deletePerson()">حذف (يمكن استرجاعه لاحقاً)</button>
 </div>
 </div>
 
@@ -286,7 +298,7 @@ const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
 const $=id=>document.getElementById(id);
 let currentProfile=null;
 let members=[],servants=[],meetings=[],attendance=[],followups=[];
-let refreshTimer=null,peopleLoaded=false;
+let refreshTimer=null,peopleLoaded=false,deletedPeople=[];
 
 const staffRoles=["system_admin","servant_admin","followup","viewer"];
 const followStatuses=["لم يتم التواصل","جاري المتابعة","تم التواصل","يحتاج متابعة مرة أخرى"];
@@ -349,6 +361,7 @@ function openPage(name,button){
  if(name==="reports")loadReports();
  if(name==="followups")loadFollowups();
  if(name==="birthdays")renderBirthdays();
+ if(name==="deleted")loadPeople();
 }
 
 /* تسجيل الدخول */
@@ -435,6 +448,7 @@ async function loadProfile(){
  $("welcomeRole").textContent="الدور: "+roleName(data.role);
  const staff=isStaff();
  $("sidebar").classList.toggle("hidden",!staff);
+ $("navDeleted").classList.toggle("hidden",data.role!=="system_admin");
  $("layout").classList.toggle("single",!staff);
   document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
@@ -461,6 +475,7 @@ function showAuth(){
 async function logout(){
  await supabaseClient.auth.signOut();
  currentProfile=null;peopleLoaded=false;
+ $("checkinBanner").classList.add("hidden");
  members=[];servants=[];meetings=[];attendance=[];followups=[];
  showAuth();
  authMsg("تم تسجيل الخروج");
@@ -471,17 +486,26 @@ async function checkInFromLink(){
  if(new URLSearchParams(location.search).get("checkin")!=="1")return;
  await checkIn();
 }
+function showCheckin(text,ok){
+ const b=$("checkinBanner");
+ b.textContent=(ok?"✅ ":"⚠️ ")+text;
+ b.style.cssText="text-align:center;font-weight:bold;background:"+(ok?"#e6f4ea":"#fdecea")+";border-color:"+(ok?"#27834b":"#c0392b")+";color:"+(ok?"#1e6b3c":"#a93226");
+ b.classList.remove("hidden");
+}
 async function checkIn(){
  try{
   msg("جاري تسجيل الحضور...");
   const {data,error}=await supabaseClient.rpc("check_in_from_qr");
   if(error)throw error;
   const result=typeof data==="string"?JSON.parse(data):data;
-  msg(result?.message||(result?.success?"تم تسجيل الحضور بنجاح":"تعذر تسجيل الحضور"),!result?.success);
+  const ok=!!result?.success;
+  const text=result?.message||(ok?"تم تسجيل حضورك في الاجتماع":"تعذر تسجيل الحضور");
+  msg(text,!ok);
+  showCheckin(text,ok);
   /* ننظف الرابط حتى لا يتكرر التسجيل عند إعادة تحميل الصفحة */
   if(new URLSearchParams(location.search).get("checkin")==="1")history.replaceState({},"",location.pathname);
   if(isStaff())await loadAttendance();
- }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);}
+ }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);showCheckin("تعذر تسجيل الحضور: "+e.message,false);}
 }
 
 /* الأعضاء والخدام */
@@ -496,14 +520,17 @@ async function loadPeople(){
   ]);
   if(m.error)throw new Error("الأعضاء: "+m.error.message);
   if(s.error)throw new Error("الخدام: "+s.error.message);
-  members=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||"",joined:x.created_at}));
-  servants=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role),joined:x.created_at}));
+  const allM=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||"",joined:x.created_at}));
+  const allS=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role),joined:x.created_at}));
+  members=allM.filter(x=>x.is_active!==false);
+  servants=allS.filter(x=>x.is_active!==false);
+  deletedPeople=[...allM.filter(x=>x.is_active===false).map(x=>({...x,kind:"عضو"})),...allS.filter(x=>x.is_active===false).map(x=>({...x,kind:"خادم"}))];
   peopleLoaded=true;
   $("homeMembers").textContent=members.length;
   $("homeServants").textContent=servants.length;
   $("membersCount").textContent=members.length;
   $("servantsCount").textContent=servants.length;
-  renderMembers();renderServants();renderBirthdays();
+  renderMembers();renderServants();renderBirthdays();renderDeleted();
   msg("تم تحميل بيانات الأسرة");
  }catch(e){msg("تعذر تحميل القوائم: "+e.message,true);}
 }
@@ -534,7 +561,7 @@ function renderMembers(){
    <td>${safe(x.residential_area||"—")}</td>
    <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
    <td>${safe(f?.status||"لم يتم التواصل")}</td>
-   <td>${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">تعديل</button>`:"—"}</td>
+   <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('member','${x.id}')">حذف</button>`:""}</td>
   </tr>`;
  }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
 }
@@ -546,7 +573,7 @@ function renderServants(){
   <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
   <td>${safe(x.residential_area||"—")}</td>
   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
-  <td>${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">تعديل</button>`:"—"}</td>
+  <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('servant','${x.id}')">حذف</button>`:""}</td>
  </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
 }
 function canEdit(){return ["system_admin","servant_admin"].includes(currentProfile?.role);}
@@ -566,6 +593,7 @@ function openEdit(kind,id){
  /* تغيير النوع: لمسؤول النظام فقط، وليس لنفسه، وللأعضاء والخدام العاديين فقط */
  const canType=currentProfile.role==="system_admin"&&id!==currentProfile.id&&["member","viewer"].includes(x.role);
  $("eTypeWrap").classList.toggle("hidden",!canType);
+ $("eDelete").classList.toggle("hidden",!canType);
  $("eType").value=kind;
  $("editTitle").textContent="تعديل بيانات "+(x.full_name||"");
  $("eName").value=x.full_name||"";
@@ -577,6 +605,51 @@ function openEdit(kind,id){
  $("eName").focus();
 }
 function closeEdit(){$("editModal").classList.add("hidden");editing=null;}
+async function setActive(id,active){
+ const d=await supabaseClient.rpc("set_person_active",{p_profile_id:id,p_active:active});
+ if(d.error)throw d.error;
+ const res=typeof d.data==="string"?JSON.parse(d.data):d.data;
+ if(!res?.success)throw new Error(res?.message||"تعذر تنفيذ العملية");
+}
+function canDelete(x){
+ return currentProfile?.role==="system_admin"&&x.id!==currentProfile.id&&["member","viewer"].includes(x.role);
+}
+async function removePerson(kind,id,fromDialog){
+ if(currentProfile?.role!=="system_admin")return;
+ const x=(kind==="member"?members:servants).find(p=>p.id===id);
+ const name=x?.full_name||"";
+ if(!confirm("حذف "+name+"؟\nسيختفي من القوائم ولن يستطيع الدخول، ويمكنك استرجاعه لاحقاً من صفحة المحذوفون."))return;
+ try{
+  if(fromDialog){$("editMsg").style.color="#27834b";$("editMsg").textContent="جاري الحذف...";}
+  else msg("جاري الحذف...");
+  await setActive(id,false);
+  if(fromDialog)closeEdit();
+  await refreshAll();
+  msg("تم حذف "+name+" (يمكن استرجاعه من صفحة المحذوفون)");
+ }catch(e){
+  if(fromDialog){$("editMsg").style.color="#c0392b";$("editMsg").textContent="تعذر الحذف: "+e.message;}
+  else msg("تعذر الحذف: "+e.message,true);
+ }
+}
+function deletePerson(){
+ if(editing)removePerson(editing.kind,editing.id,true);
+}
+function renderDeleted(){
+ if(!$("deletedList"))return;
+ $("deletedList").innerHTML=deletedPeople.map(x=>`<div class="card">
+  <strong>${safe(x.full_name)}</strong> <span class="badge">${x.kind}</span>
+  <div class="muted">${safe(x.phone||"")}</div>
+  <button onclick="restorePerson('${x.id}')">استرجاع</button>
+ </div>`).join("")||'<p class="muted">لا يوجد محذوفون.</p>';
+}
+async function restorePerson(id){
+ const x=deletedPeople.find(p=>p.id===id);
+ try{
+  await setActive(id,true);
+  await refreshAll();
+  msg("تم استرجاع "+(x?.full_name||"الحساب")+" كـ"+(x?.kind||""));
+ }catch(e){msg("تعذر الاسترجاع: "+e.message,true);}
+}
 async function saveEdit(){
  if(!editing||!canEdit())return;
  const {kind,id}=editing;
@@ -618,9 +691,19 @@ async function fetchAttendanceData(){
  meetings=m.data||[];
 }
 function isMeetingClosed(meeting){
- if(!meeting.closes_at)return false;
- const close=new Date(meeting.closes_at);
- return !isNaN(close.getTime())&&Date.now()>close.getTime();
+ const today=cairoToday();
+ if(meeting.meeting_date<today)return true;
+ if(meeting.meeting_date>today)return false;
+ const raw=String(meeting.closes_at||"");
+ /* وقت إغلاق كامل (تاريخ + وقت) */
+ if(/^\d{4}-\d{2}-\d{2}[T ]/.test(raw)){
+  const c=new Date(raw);
+  if(!isNaN(c.getTime()))return Date.now()>c.getTime();
+ }
+ /* وقت فقط مثل 20:00:00، وإن لم يوجد فالإغلاق 8 مساءً بتوقيت القاهرة */
+ const limit=/^\d{2}:\d{2}/.test(raw)?raw.slice(0,5):"20:00";
+ const hm=new Date().toLocaleTimeString("en-GB",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit",hour12:false});
+ return hm>=limit;
 }
 async function loadAttendance(){
  if(!isStaff())return;
