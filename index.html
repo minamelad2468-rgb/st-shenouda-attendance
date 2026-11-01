@@ -120,6 +120,7 @@ tr:last-child td{border-bottom:0}
 <button class="nav" data-page="servants" onclick="openPage('servants',this)">الخدام</button>
 <button class="nav" data-page="reports" onclick="openPage('reports',this)">التقارير والإحصائيات</button>
 <button class="nav" data-page="followups" onclick="openPage('followups',this)">المتابعة</button>
+<button class="nav" data-page="visits" onclick="openPage('visits',this)">الافتقاد</button>
 <button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)">أعياد الميلاد</button>
 <button class="nav hidden" id="navDeleted" data-page="deleted" onclick="openPage('deleted',this)">المحذوفون</button>
 </aside>
@@ -230,6 +231,36 @@ tr:last-child td{border-bottom:0}
 <button onclick="loadFollowups()">تحديث</button>
 </div>
 <div id="followList"></div>
+</div>
+</section>
+
+<section id="page-visits" class="page">
+<div class="panel">
+<h2>الافتقاد</h2>
+<p class="muted">كل الأعضاء والخدام المسجلين. اضغط "تم الافتقاد" لينتقل الشخص إلى جدول "تم الافتقاد" مع تاريخ اليوم.</p>
+<div class="stats">
+<div class="stat">لم يتم الافتقاد<strong id="visitTodoCount">—</strong></div>
+<div class="stat">تم الافتقاد<strong id="visitDoneCount">—</strong></div>
+</div>
+<div class="toolbar">
+<input id="visitSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderVisits()">
+<select id="visitKind" onchange="renderVisits()">
+<option value="all">الأعضاء والخدام</option>
+<option value="عضو">الأعضاء فقط</option>
+<option value="خادم">الخدام فقط</option>
+</select>
+<button onclick="loadVisits()">تحديث</button>
+</div>
+<h3>لم يتم الافتقاد</h3>
+<div class="table-wrap"><table style="min-width:440px">
+<thead><tr><th>إجراء</th><th>الاسم</th><th>النوع</th><th>الموبايل</th></tr></thead>
+<tbody id="visitTodoTable"></tbody>
+</table></div>
+<h3>تم الافتقاد</h3>
+<div class="table-wrap"><table style="min-width:520px">
+<thead><tr><th>إجراء</th><th>الاسم</th><th>النوع</th><th>الموبايل</th><th>تاريخ الافتقاد</th></tr></thead>
+<tbody id="visitDoneTable"></tbody>
+</table></div>
 </div>
 </section>
 
@@ -361,6 +392,7 @@ function openPage(name,button){
  if(name==="members"||name==="servants")loadPeople();
  if(name==="reports")loadReports();
  if(name==="followups")loadFollowups();
+ if(name==="visits")loadVisits();
  if(name==="birthdays")renderBirthdays();
  if(name==="deleted")loadPeople();
 }
@@ -824,6 +856,56 @@ async function saveFollowup(id){
   msg("تم حفظ حالة المتابعة");
   await loadFollowups();
  }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
+}
+
+/* الافتقاد */
+let visits={};
+const canVisit=()=>["system_admin","servant_admin","followup"].includes(currentProfile?.role);
+function fmtDate(iso){
+ return new Date(iso).toLocaleDateString("ar-EG",{timeZone:"Africa/Cairo",year:"numeric",month:"long",day:"numeric"});
+}
+async function loadVisits(){
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  const r=await supabaseClient.rpc("get_visits");
+  if(r.error)throw r.error;
+  const rows=typeof r.data==="string"?JSON.parse(r.data):(r.data||[]);
+  visits={};
+  rows.forEach(v=>{visits[v.profile_id]=v.visited_at;});
+  renderVisits();
+ }catch(e){msg("تعذر تحميل الافتقاد: "+e.message,true);}
+}
+function renderVisits(){
+ const q=($("visitSearch").value||"").trim().toLowerCase();
+ const kindF=$("visitKind").value;
+ const full=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ $("visitDoneCount").textContent=full.filter(x=>visits[x.id]).length;
+ $("visitTodoCount").textContent=full.filter(x=>!visits[x.id]).length;
+ const all=full.filter(x=>(kindF==="all"||x.kind===kindF)&&((x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q)));
+ const todo=all.filter(x=>!visits[x.id]);
+ const done=all.filter(x=>visits[x.id]).sort((a,b)=>new Date(visits[b.id])-new Date(visits[a.id]));
+ const phone=x=>x.phone?`<a href="tel:${safe(x.phone)}">${safe(x.phone)}</a>`:"—";
+ $("visitTodoTable").innerHTML=todo.map(x=>`<tr>
+  <td>${canVisit()?`<button onclick="markVisit('${x.id}',true)">تم الافتقاد</button>`:"—"}</td>
+  <td>${safe(x.full_name)}</td><td><span class="badge">${x.kind}</span></td><td>${phone(x)}</td></tr>`).join("")||'<tr><td colspan="4">لا يوجد أحد</td></tr>';
+ $("visitDoneTable").innerHTML=done.map(x=>`<tr>
+  <td>${canVisit()?`<button class="secondary" onclick="markVisit('${x.id}',false)">إرجاع</button>`:"—"}</td>
+  <td>${safe(x.full_name)}</td><td><span class="badge">${x.kind}</span></td><td>${phone(x)}</td>
+  <td><strong>${safe(fmtDate(visits[x.id]))}</strong></td></tr>`).join("")||'<tr><td colspan="5">لا يوجد أحد</td></tr>';
+}
+async function markVisit(id,visited){
+ const p=[...members,...servants].find(x=>x.id===id);
+ const name=p?.full_name||"";
+ if(!visited&&!confirm("إرجاع "+name+" إلى قائمة لم يتم الافتقاد؟"))return;
+ try{
+  const r=await supabaseClient.rpc("set_visit",{p_profile_id:id,p_visited:visited});
+  if(r.error)throw r.error;
+  const res=typeof r.data==="string"?JSON.parse(r.data):r.data;
+  if(!res?.success)throw new Error(res?.message||"تعذر الحفظ");
+  await loadVisits();
+  msg(visited?"تم افتقاد "+name+" بتاريخ "+fmtDate(visits[id]||new Date().toISOString()):"تم إرجاع "+name+" إلى لم يتم الافتقاد");
+ }catch(e){msg("تعذر الحفظ: "+e.message,true);}
 }
 
 /* أعياد الميلاد */
