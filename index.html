@@ -38,6 +38,7 @@ h1{text-align:center}
 .stat strong{display:block;font-size:25px;color:#59368a;margin-top:8px}
 .table-wrap{overflow-x:auto;background:#fff;border-radius:12px;margin:12px 0}
 table{border-collapse:collapse;width:100%;min-width:650px}
+button.danger,button.secondary{padding:9px 12px}
 th,td{padding:12px;border-bottom:1px solid #eee;text-align:right}
 th{background:#f1ebf7;color:#59368a}
 tr:last-child td{border-bottom:0}
@@ -175,7 +176,7 @@ tr:last-child td{border-bottom:0}
 <div class="stats"><div class="stat">إجمالي الأعضاء<strong id="membersCount">—</strong></div></div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th><th>إجراءات</th></tr></thead>
+<thead><tr><th>إجراءات</th><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th></tr></thead>
 <tbody id="membersTable"></tbody>
 </table>
 </div>
@@ -192,7 +193,7 @@ tr:last-child td{border-bottom:0}
 <div class="stats"><div class="stat">إجمالي الخدام<strong id="servantsCount">—</strong></div></div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>إجراءات</th></tr></thead>
+<thead><tr><th>إجراءات</th><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th></tr></thead>
 <tbody id="servantsTable"></tbody>
 </table>
 </div>
@@ -555,13 +556,13 @@ function renderMembers(){
  $("membersTable").innerHTML=rows.map(x=>{
   const f=followFor(x.id);
   return `<tr>
+   <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('member','${x.id}')">حذف</button>`:""}</td>
    <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
    <td>${safe(x.birth_date||"—")}</td>
    <td>${safe(x.study_year||"غير مسجل")}</td>
    <td>${safe(x.residential_area||"—")}</td>
    <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
    <td>${safe(f?.status||"لم يتم التواصل")}</td>
-   <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('member','${x.id}')">حذف</button>`:""}</td>
   </tr>`;
  }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
 }
@@ -569,11 +570,11 @@ function renderServants(){
  const q=($("servantSearch").value||"").trim().toLowerCase();
  const rows=servants.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
  $("servantsTable").innerHTML=rows.map(x=>`<tr>
+  <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('servant','${x.id}')">حذف</button>`:""}</td>
   <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
   <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
   <td>${safe(x.residential_area||"—")}</td>
   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
-  <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('servant','${x.id}')">حذف</button>`:""}</td>
  </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
 }
 function canEdit(){return ["system_admin","servant_admin"].includes(currentProfile?.role);}
