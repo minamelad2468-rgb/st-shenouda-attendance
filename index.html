@@ -74,6 +74,22 @@ tr:last-child td{border-bottom:0}
 #toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:min(92vw,420px);display:flex;flex-direction:column;gap:8px;z-index:60;pointer-events:none}
 .toast{pointer-events:auto;padding:12px 14px;border-radius:12px;color:#fff;font-weight:bold;line-height:1.6;box-shadow:0 6px 24px #0003;cursor:pointer;background:#3b6fc4}
 .toast.danger{background:#b83232}.toast.warning{background:#c67a10}.toast.success{background:#27834b}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.cal-h{text-align:center;font-weight:bold;color:#7a1424;font-size:12px;padding:6px 0}
+.cal-d{min-height:80px;background:#fff;border:1px solid #eadcc0;border-radius:10px;padding:5px;display:flex;flex-direction:column;gap:3px;font-size:12px}
+.cal-d.empty{background:transparent;border:0}
+.cal-d.fri{border-color:#c9a046;background:#fffaf0}
+.cal-d.today{box-shadow:0 0 0 2px #7a1424 inset}
+.cal-d.has{cursor:pointer}
+.cal-d.sel{background:#f4ead9}
+.cal-n{font-weight:bold;color:#2e2220}
+.pill{display:block;border-radius:8px;padding:2px 4px;font-weight:bold;text-align:center;color:#fff;font-size:12px}
+.pill.ok{background:#27834b}.pill.no{background:#b83232}
+.cal-note{font-size:11px;color:#777}
+.cal-nav{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0}
+.cal-nav h3{margin:0;flex:2;text-align:center}
+.cal-nav button{flex:1}
+@media(max-width:600px){.cal-d{min-height:66px;padding:3px}.cal .lbl{display:none}.cal-h{font-size:10px}.cal{gap:3px}}
 @media(max-width:750px){
  .layout{grid-template-columns:1fr}
  .sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
@@ -136,6 +152,7 @@ tr:last-child td{border-bottom:0}
 <button class="nav active" data-page="home" onclick="openPage('home',this)">الرئيسية</button>
 <button class="nav" data-page="notifications" onclick="openPage('notifications',this)">الإشعارات <span id="notifBadge" class="nbadge hidden"></span></button>
 <button class="nav" data-page="attendance" onclick="openPage('attendance',this)">الحضور والغياب</button>
+<button class="nav" data-page="calendar" onclick="openPage('calendar',this)">التقويم</button>
 <button class="nav" data-page="members" onclick="openPage('members',this)">الأعضاء</button>
 <button class="nav" data-page="servants" onclick="openPage('servants',this)">الخدام</button>
 <button class="nav" data-page="reports" onclick="openPage('reports',this)">التقارير والإحصائيات</button>
@@ -254,6 +271,22 @@ tr:last-child td{border-bottom:0}
 </div>
 </section>
 
+<section id="page-calendar" class="page">
+<div class="panel">
+<h2>تقويم الاجتماعات</h2>
+<p class="muted">🟢 عدد الحضور &nbsp; 🔴 عدد الغياب (يظهر بعد انتهاء الاجتماع الساعة 8 مساءً). اضغط على أي جمعة فيها اجتماع لتشوف الأسماء.</p>
+<div class="cal-nav">
+<button class="secondary" onclick="calNav(1)">الشهر التالي ›</button>
+<h3 id="calTitle"></h3>
+<button class="secondary" onclick="calNav(-1)">‹ الشهر السابق</button>
+</div>
+<div class="toolbar"><button class="secondary" onclick="calNav(0)">اليوم</button><button onclick="loadCalendar()">تحديث</button></div>
+<div id="calGrid" class="cal"></div>
+<p id="calSummary" class="muted"></p>
+<div id="calDetail"></div>
+</div>
+</section>
+
 <section id="page-notifications" class="page">
 <div class="panel">
 <h2>مركز الإشعارات</h2>
@@ -329,7 +362,7 @@ tr:last-child td{border-bottom:0}
 
 </div>
 </div>
-<p class="muted" style="text-align:center;margin-top:18px">رقم النسخة: 2026-11-01 (مع الشعار والخلفية)</p>
+<p class="muted" style="text-align:center;margin-top:18px">رقم النسخة: 2026-11-01 (مع التقويم)</p>
 </main>
 
 <div id="toasts" aria-live="polite"></div>
@@ -444,6 +477,7 @@ function openPage(name,button){
  if(name==="followups")loadFollowups();
  if(name==="visits")loadVisits();
  if(name==="notifications")loadNotifications();
+ if(name==="calendar")loadCalendar();
  if(name==="birthdays")renderBirthdays();
  if(name==="deleted")loadPeople();
 }
@@ -907,6 +941,77 @@ async function saveFollowup(id){
   msg("تم حفظ حالة المتابعة");
   await loadFollowups();
  }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
+}
+
+/* التقويم */
+let calY=null,calM=null,calSel=null;
+function meetingStats(m){
+ const ids=new Set(attendance.filter(a=>a.meeting_id===m.id).map(a=>a.member_id));
+ const pm=members.filter(x=>ids.has(x.id)).map(x=>({...x,kind:"عضو"}));
+ const ps=servants.filter(x=>ids.has(x.id)).map(x=>({...x,kind:"خادم"}));
+ const closed=isMeetingClosed(m);
+ const eligible=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))].filter(p=>{const j=joinDate(p);return !j||j<=m.meeting_date;});
+ const absent=closed?eligible.filter(p=>!ids.has(p.id)):[];
+ return {present:pm.length+ps.length,mem:pm.length,srv:ps.length,closed,absent,presentList:[...pm,...ps]};
+}
+async function loadCalendar(){
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  await fetchAttendanceData();
+  if(calY===null){const p=cairoToday().split("-").map(Number);calY=p[0];calM=p[1]-1;}
+  renderCalendar();
+ }catch(e){msg("تعذر تحميل التقويم: "+e.message,true);}
+}
+function calNav(delta){
+ if(delta===0||calY===null){const p=cairoToday().split("-").map(Number);calY=p[0];calM=p[1]-1;calSel=null;}
+ else{calM+=delta;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}calSel=null;}
+ renderCalendar();
+}
+function calPick(ds){calSel=calSel===ds?null:ds;renderCalendar();}
+function renderCalendar(){
+ if(calY===null)return;
+ const names=["السبت","الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+ const pad=n=>String(n).padStart(2,"0");
+ const first=new Date(calY,calM,1),dim=new Date(calY,calM+1,0).getDate();
+ const offset=(first.getDay()+1)%7;
+ const byDate={};meetings.forEach(m=>{byDate[m.meeting_date]=m;});
+ const today=cairoToday();
+ $("calTitle").textContent=first.toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+ const cells=names.map(n=>`<div class="cal-h">${n}</div>`);
+ for(let i=0;i<offset;i++)cells.push('<div class="cal-d empty"></div>');
+ let count=0,sumPresent=0,closedCount=0;
+ for(let d=1;d<=dim;d++){
+  const ds=calY+"-"+pad(calM+1)+"-"+pad(d);
+  const fri=new Date(calY,calM,d).getDay()===5;
+  const m=byDate[ds];
+  let inner=`<span class="cal-n">${d}</span>`;
+  if(m){
+   const st=meetingStats(m);
+   count++;
+   if(st.closed){closedCount++;sumPresent+=st.present;}
+   inner+=`<span class="pill ok"><span class="lbl">حضور </span>${st.present}</span>`;
+   inner+=st.closed?`<span class="pill no"><span class="lbl">غياب </span>${st.absent.length}</span>`:'<span class="cal-note">جارٍ</span>';
+  }else if(fri){
+   inner+=ds<today?'<span class="cal-note">لا اجتماع</span>':(ds===today?'<span class="cal-note">لم يبدأ</span>':"");
+  }
+  cells.push(`<div class="cal-d${fri?" fri":""}${ds===today?" today":""}${m?" has":""}${calSel===ds?" sel":""}"${m?` onclick="calPick('${ds}')"`:""}>${inner}</div>`);
+ }
+ $("calGrid").innerHTML=cells.join("");
+ $("calSummary").textContent=count
+  ?"عدد الاجتماعات في الشهر: "+count+(closedCount?" — متوسط الحضور: "+Math.round(sumPresent/closedCount):""):"لا توجد اجتماعات مسجلة في هذا الشهر.";
+ const sm=calSel&&byDate[calSel];
+ if(!sm){$("calDetail").innerHTML="";return;}
+ const st=meetingStats(sm);
+ const dp=calSel.split("-").map(Number);
+ const label=new Date(dp[0],dp[1]-1,dp[2]).toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ const li=l=>l.map(p=>`<li>${safe(p.full_name)} <span class="badge">${p.kind}</span></li>`).join("");
+ $("calDetail").innerHTML=`<div class="card">
+  <strong>اجتماع ${safe(label)}</strong>
+  <div>حضر <strong>${st.present}</strong> (${st.mem} عضو و${st.srv} خادم)${st.closed?" — غاب <strong>"+st.absent.length+"</strong>":" — الاجتماع جارٍ والغياب يظهر بعد انتهائه"}</div>
+  <details><summary>الحاضرون (${st.present})</summary><ul>${li(st.presentList)||"<li>لا أحد</li>"}</ul></details>
+  ${st.closed?`<details><summary>الغائبون (${st.absent.length})</summary><ul>${li(st.absent)||"<li>لا أحد</li>"}</ul></details>`:""}
+ </div>`;
 }
 
 /* مركز الإشعارات */
