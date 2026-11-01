@@ -323,7 +323,7 @@ tr:last-child td{border-bottom:0}
 
 </div>
 </div>
-<p class="muted" style="text-align:center;margin-top:18px">رقم النسخة: 2026-11-01 (مع الإشعارات)</p>
+<p class="muted" style="text-align:center;margin-top:18px">رقم النسخة: 2026-11-01 (12 شهراً)</p>
 </main>
 
 <div id="toasts" aria-live="polite"></div>
@@ -997,6 +997,26 @@ function buildNotifications(visitsOk){
   return {...p,days:Math.round((next-start)/86400000)};
  }).filter(x=>x&&x.days<=7).sort((a,b)=>a.days-b.days);
  if(bds.length)add({cat:"birthday",level:bds[0].days===0?"success":"info",title:bds[0].days===0?"عيد ميلاد اليوم 🎉":"أعياد ميلاد خلال 7 أيام ("+bds.length+")",text:"لا تنس التهنئة.",items:bds.map(x=>x.full_name+" ("+x.kind+") — "+(x.days===0?"اليوم":"بعد "+x.days+" يوم")),page:"birthdays",btn:"فتح أعياد الميلاد"});
+
+ /* أعياد الميلاد لكل شهر (يبدأ من الشهر الحالي، ويظهر كل الشهور حتى الفارغة) */
+ const cp=cairoToday().split("-").map(Number),cy=cp[0],cm=cp[1],cd=cp[2];
+ for(let k=0;k<12;k++){
+  const mo=((cm-1+k)%12)+1;
+  const list=everyone.filter(x=>x.birth_date&&Number(x.birth_date.split("-")[1])===mo)
+   .map(x=>({...x,d:Number(x.birth_date.split("-")[2])})).sort((a,b)=>a.d-b.d);
+  const mname=new Date(cy,mo-1,1).toLocaleDateString("ar-EG",{month:"long"});
+  const cur=k===0;
+  const tag=cur?" — هذا الشهر":(mo<cm?" — العام القادم":"");
+  if(!list.length){
+   add({cat:"birthday",level:"info",title:"شهر "+mname+": لا يوجد أعياد ميلاد"+tag,text:"لا أحد من الأعضاء أو الخدام عيد ميلاده في شهر "+mname+"."});
+   continue;
+  }
+  add({cat:"birthday",level:"info",
+   title:"أعياد ميلاد شهر "+mname+" ("+list.length+")"+tag,
+   text:cur?"كل من يقع عيد ميلاده في هذا الشهر.":"الأشخاص الذين يقع عيد ميلادهم في شهر "+mname+".",
+   items:list.map(x=>x.full_name+" ("+x.kind+") — "+new Date(cy,mo-1,x.d).toLocaleDateString("ar-EG",{day:"numeric",month:"long"})+(cur&&x.d===cd?" (اليوم 🎉)":cur&&x.d<cd?" (فات)":"")),
+   page:cur?"birthdays":null,btn:"فتح أعياد الميلاد"});
+ }
 
  /* الافتقاد */
  if(visitsOk&&everyone.length){
