@@ -1804,7 +1804,7 @@ body:has(#authArea:not(.hidden)) .blob{display:none}
 @keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
 /* ===== Laptop: bring the box closer to the saint, make it larger ===== */
-@media(min-width:769px){
+@media(min-width:769px) and (orientation:landscape){
  #authArea{--w:min(46vw,700px);width:var(--w);max-width:none;
    margin:clamp(16px,4vh,56px) calc(33vw - var(--w)/2) 32px auto;
    padding:clamp(22px,4vh,42px) clamp(32px,3.8vw,60px) clamp(20px,3.2vh,32px)}
@@ -1816,18 +1816,25 @@ body:has(#authArea:not(.hidden)) .blob{display:none}
  #authArea button{font-size:clamp(17px,2.4vh,20px);padding:clamp(13px,2vh,18px)}
 }
 
-/* ===== Phone: saint's face stays visible, box sits in front of his body ===== */
-@media(max-width:768px){
- body:has(#authArea:not(.hidden))::before{background-size:auto 100vh;background-position:9% 0}
- @supports (height:100svh){body:has(#authArea:not(.hidden))::before{background-size:auto 100svh}}
- #authArea{margin:41vh 14px 24px;padding:16px 18px 14px;background:rgba(255,255,255,.93)}
- @supports (height:100svh){#authArea{margin-top:41svh}}
- #authArea .logo{width:62px;height:82px;margin-bottom:0}
- #authArea h1{font-size:26px;margin:4px 0 0}
- #authArea .sub{font-size:14px;margin:2px 0 2px}
- #authArea h3{font-size:19px;margin:6px 0 2px}
- #authArea .fld>input{min-height:48px;padding-top:12px;padding-bottom:12px;margin:6px 0}
- #authArea button{min-height:48px;margin-top:6px}
+/* ===== Phone / any portrait screen (also works when the browser is in "Desktop site" mode) =====
+   All sizes use --u (1vw, capped) so the layout looks identical whatever the viewport width is. */
+@media (max-width:768px), (orientation:portrait) and (max-width:1300px){
+ /* saint centred horizontally, full height of the screen */
+ body:has(#authArea:not(.hidden))::before{background-size:auto 100%;background-position:calc(50vw - 35.5vh) 0;background-repeat:no-repeat}
+ #authArea{--u:min(1vw,10px);width:auto;max-width:none;
+   margin:40vh calc(var(--u)*3.5) 24px;
+   padding:calc(var(--u)*3) calc(var(--u)*4.5) calc(var(--u)*3.5);border-radius:calc(var(--u)*7);
+   background:rgba(255,255,255,.93)}
+ #authArea .logo{width:calc(var(--u)*12);height:calc(var(--u)*16);margin:0 auto}
+ #authArea h1{font-size:calc(var(--u)*6.4);margin:calc(var(--u)*.8) 0 0}
+ #authArea .sub{font-size:calc(var(--u)*3.4);margin:calc(var(--u)*.5) 0}
+ #authArea h3{font-size:calc(var(--u)*4.6);margin:calc(var(--u)*1.5) 0 calc(var(--u)*.5)}
+ #authArea .fld>input{font-size:calc(var(--u)*3.9);min-height:calc(var(--u)*11);
+   padding:calc(var(--u)*2.8) calc(var(--u)*11) calc(var(--u)*2.8) calc(var(--u)*3);margin:calc(var(--u)*1.4) 0;border-radius:calc(var(--u)*3.5)}
+ #authArea .fld>.ic{width:calc(var(--u)*5);height:calc(var(--u)*5);right:calc(var(--u)*3.6)}
+ #authArea button{font-size:calc(var(--u)*4.2);min-height:calc(var(--u)*11.5);padding:calc(var(--u)*2.4);margin-top:calc(var(--u)*1.6);border-radius:calc(var(--u)*3.5)}
+ #authArea .check{font-size:calc(var(--u)*3.8);margin:calc(var(--u)*2.5) 0}
+ #authArea .muted{font-size:calc(var(--u)*3.2)}
  #appArea>header .logo.sm{width:58px;height:77px}
 }
 </style>
