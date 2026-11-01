@@ -57,6 +57,19 @@ tr:last-child td{border-bottom:0}
 #editModal label{font-size:13px;color:#59368a;font-weight:bold}
 #editModal .btns{display:flex;gap:8px}
 #editModal .btns button{flex:1}
+.notif{border-radius:12px;padding:14px;margin:10px 0;line-height:1.8;border:1px solid #e5dcef;border-right-width:6px;background:#fff}
+.notif.danger{border-color:#e3a3a3;border-right-color:#b83232;background:#fdf2f2}
+.notif.warning{border-color:#ecd0a0;border-right-color:#d98a1b;background:#fff8ec}
+.notif.info{border-color:#c9d6ee;border-right-color:#3b6fc4;background:#f4f7fd}
+.notif.success{border-color:#b9dfc6;border-right-color:#27834b;background:#f1faf4}
+.notif details{margin:6px 0}
+.notif summary{cursor:pointer;color:#59368a;font-weight:bold}
+.notif ul{margin:6px 0;padding-right:20px}
+.notif .row strong{flex:3}
+.nbadge{display:inline-block;min-width:20px;padding:1px 6px;border-radius:20px;background:#b83232;color:#fff;font-size:12px;text-align:center;margin-right:4px}
+#toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:min(92vw,420px);display:flex;flex-direction:column;gap:8px;z-index:60;pointer-events:none}
+.toast{pointer-events:auto;padding:12px 14px;border-radius:12px;color:#fff;font-weight:bold;line-height:1.6;box-shadow:0 6px 24px #0003;cursor:pointer;background:#3b6fc4}
+.toast.danger{background:#b83232}.toast.warning{background:#c67a10}.toast.success{background:#27834b}
 @media(max-width:750px){
  .layout{grid-template-columns:1fr}
  .sidebar{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
@@ -115,6 +128,7 @@ tr:last-child td{border-bottom:0}
 <aside class="sidebar" id="sidebar">
 <h3>القائمة الرئيسية</h3>
 <button class="nav active" data-page="home" onclick="openPage('home',this)">الرئيسية</button>
+<button class="nav" data-page="notifications" onclick="openPage('notifications',this)">الإشعارات <span id="notifBadge" class="nbadge hidden"></span></button>
 <button class="nav" data-page="attendance" onclick="openPage('attendance',this)">الحضور والغياب</button>
 <button class="nav" data-page="members" onclick="openPage('members',this)">الأعضاء</button>
 <button class="nav" data-page="servants" onclick="openPage('servants',this)">الخدام</button>
@@ -234,6 +248,33 @@ tr:last-child td{border-bottom:0}
 </div>
 </section>
 
+<section id="page-notifications" class="page">
+<div class="panel">
+<h2>مركز الإشعارات</h2>
+<p class="muted">تنبيهات وإحصائيات تُحسب تلقائياً من بيانات النظام: الغياب، أعياد الميلاد، الافتقاد، المتابعة، الحضور، والبيانات الناقصة.</p>
+<div class="stats">
+<div class="stat">عاجل<strong id="nUrgent">—</strong></div>
+<div class="stat">تحذيرات<strong id="nWarn">—</strong></div>
+<div class="stat">معلومات<strong id="nInfo">—</strong></div>
+</div>
+<div class="toolbar">
+<select id="notifFilter" onchange="renderNotifications()">
+<option value="all">كل الإشعارات</option>
+<option value="absence">الغياب</option>
+<option value="follow">المتابعة</option>
+<option value="visit">الافتقاد</option>
+<option value="stats">الإحصائيات</option>
+<option value="birthday">أعياد الميلاد</option>
+<option value="new">أعضاء جدد</option>
+<option value="data">بيانات ناقصة</option>
+</select>
+<button onclick="loadNotifications()">تحديث الإشعارات</button>
+</div>
+<p id="notifTime" class="muted"></p>
+<div id="notifList"></div>
+</div>
+</section>
+
 <section id="page-visits" class="page">
 <div class="panel">
 <h2>الافتقاد</h2>
@@ -282,7 +323,10 @@ tr:last-child td{border-bottom:0}
 
 </div>
 </div>
+<p class="muted" style="text-align:center;margin-top:18px">رقم النسخة: 2026-11-01 (مع الإشعارات)</p>
 </main>
+
+<div id="toasts" aria-live="polite"></div>
 
 <div id="modal" class="hidden" role="dialog" aria-modal="true">
 <div class="box">
@@ -393,6 +437,7 @@ function openPage(name,button){
  if(name==="reports")loadReports();
  if(name==="followups")loadFollowups();
  if(name==="visits")loadVisits();
+ if(name==="notifications")loadNotifications();
  if(name==="birthdays")renderBirthdays();
  if(name==="deleted")loadPeople();
 }
@@ -507,7 +552,7 @@ function showAuth(){
 }
 async function logout(){
  await supabaseClient.auth.signOut();
- currentProfile=null;peopleLoaded=false;
+ currentProfile=null;peopleLoaded=false;toastsShown=false;notifs=[];
  $("checkinBanner").classList.add("hidden");
  members=[];servants=[];meetings=[];attendance=[];followups=[];
  showAuth();
@@ -858,6 +903,168 @@ async function saveFollowup(id){
  }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
 }
 
+/* مركز الإشعارات */
+let notifs=[],toastsShown=false;
+const catLabel={absence:"غياب",follow:"متابعة",stats:"إحصائيات",birthday:"أعياد الميلاد",visit:"الافتقاد",data:"بيانات",new:"أعضاء جدد",meeting:"الاجتماع"};
+const lvIcon={danger:"🔴",warning:"🟠",info:"🔵",success:"🟢"};
+const lvOrder={danger:0,warning:1,info:2,success:3};
+
+function toast(text,level,page){
+ const box=$("toasts");if(!box)return;
+ const t=document.createElement("div");
+ t.className="toast "+(level||"info");
+ t.textContent=text;
+ t.onclick=()=>{t.remove();if(page)goPage(page);};
+ box.appendChild(t);
+ setTimeout(()=>t.remove(),7000);
+}
+function goPage(name){
+ const b=document.querySelector('.nav[data-page="'+name+'"]');
+ openPage(name,b);
+}
+function joinDate(p){
+ return p.joined?new Date(p.joined).toLocaleDateString("en-CA",{timeZone:"Africa/Cairo"}):"";
+}
+function buildNotifications(visitsOk){
+ const out=[];
+ const add=n=>out.push(n);
+ const everyone=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ const closed=meetings.filter(isMeetingClosed).sort((a,b)=>a.meeting_date<b.meeting_date?-1:1);
+ const attBy={};
+ attendance.forEach(a=>{(attBy[a.member_id]=attBy[a.member_id]||new Set()).add(a.meeting_id);});
+
+ /* الغياب المتتالي */
+ const streaks=[];
+ everyone.forEach(p=>{
+  const from=joinDate(p);
+  const rel=closed.filter(m=>!from||m.meeting_date>=from);
+  const got=attBy[p.id]||new Set();
+  let n=0;
+  for(let i=rel.length-1;i>=0;i--){if(got.has(rel[i].id))break;n++;}
+  if(n>=2)streaks.push({...p,n});
+ });
+ const line=x=>x.full_name+" ("+x.kind+") — غاب "+(x.n===2?"اجتماعين":x.n+" اجتماعات")+" متتاليين";
+ const s3=streaks.filter(x=>x.n>=3).sort((a,b)=>b.n-a.n);
+ const s2=streaks.filter(x=>x.n===2);
+ if(s3.length)add({cat:"absence",level:"danger",title:"غياب 3 اجتماعات متتالية أو أكثر ("+s3.length+")",text:"هؤلاء يحتاجون افتقاداً عاجلاً.",items:s3.map(line),page:"visits",btn:"فتح الافتقاد"});
+ if(s2.length)add({cat:"absence",level:"warning",title:"غياب اجتماعين متتاليين ("+s2.length+")",text:"يُفضّل التواصل معهم قبل أن يتحول الغياب إلى عادة.",items:s2.map(line),page:"visits",btn:"فتح الافتقاد"});
+
+ /* غائبون لم يتم التواصل معهم */
+ const nc=streaks.filter(x=>x.kind==="عضو").filter(x=>{
+  const st=followFor(x.id)?.status||"لم يتم التواصل";
+  return st==="لم يتم التواصل"||st==="يحتاج متابعة مرة أخرى";
+ });
+ if(nc.length)add({cat:"follow",level:"warning",title:"أعضاء غائبون لم يتم التواصل معهم ("+nc.length+")",text:"حالة المتابعة لهم «لم يتم التواصل» أو «يحتاج متابعة مرة أخرى».",items:nc.map(x=>x.full_name+" — "+(followFor(x.id)?.status||"لم يتم التواصل")),page:"followups",btn:"فتح المتابعة"});
+ const again=members.filter(x=>followFor(x.id)?.status==="يحتاج متابعة مرة أخرى");
+ if(again.length)add({cat:"follow",level:"warning",title:"أعضاء يحتاجون متابعة مرة أخرى ("+again.length+")",text:"تم التواصل معهم سابقاً وما زالوا يحتاجون متابعة.",items:again.map(x=>x.full_name),page:"followups",btn:"فتح المتابعة"});
+
+ /* إحصائيات آخر اجتماع */
+ if(closed.length){
+  const stat=m=>{
+   const ids=new Set(attendance.filter(a=>a.meeting_id===m.id).map(a=>a.member_id));
+   const mm=members.filter(x=>ids.has(x.id)).length,ss=servants.filter(x=>ids.has(x.id)).length;
+   return {mm,ss,mr:members.length?Math.round(mm/members.length*100):0,sr:servants.length?Math.round(ss/servants.length*100):0};
+  };
+  const last=closed[closed.length-1],l=stat(last);
+  let text="حضر "+l.mm+" من "+members.length+" عضو ("+l.mr+"%)، و"+l.ss+" من "+servants.length+" خادم ("+l.sr+"%).";
+  let level="info";
+  if(closed.length>1){
+   const diff=l.mr-stat(closed[closed.length-2]).mr;
+   if(diff!==0)text+=" "+(diff>0?"ارتفعت":"انخفضت")+" نسبة حضور الأعضاء "+Math.abs(diff)+" نقطة عن الاجتماع السابق.";
+   if(diff<=-15)level="warning";else if(diff>=10)level="success";
+  }
+  add({cat:"stats",level,title:"إحصائيات آخر اجتماع ("+last.meeting_date+")",text,page:"reports",btn:"فتح التقارير"});
+  const recent=closed.slice(-4),avg=Math.round(recent.reduce((a,m)=>a+stat(m).mr,0)/recent.length);
+  add({cat:"stats",level:"info",title:"متوسط حضور الأعضاء في آخر "+recent.length+" اجتماعات: "+avg+"%",text:"محسوب من نسبة الأعضاء الحاليين الذين حضروا كل اجتماع.",page:"reports",btn:"فتح التقارير"});
+ }else{
+  add({cat:"stats",level:"info",title:"لا توجد اجتماعات منتهية بعد",text:"ستظهر الإحصائيات والغياب بعد انتهاء أول اجتماع."});
+ }
+
+ /* اجتماع اليوم جارٍ */
+ const tm=meetings.find(m=>m.meeting_date===cairoToday());
+ if(tm&&!isMeetingClosed(tm)){
+  const c=attendance.filter(a=>a.meeting_id===tm.id).length;
+  add({cat:"meeting",level:"info",title:"اجتماع اليوم جارٍ",text:"سجّل حضورهم حتى الآن: "+c+" من "+everyone.length+".",page:"attendance",btn:"فتح الحضور"});
+ }
+
+ /* أعياد الميلاد خلال 7 أيام */
+ const t0=new Date(),start=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate());
+ const bds=everyone.map(p=>{
+  if(!p.birth_date)return null;
+  const parts=p.birth_date.split("-").map(Number);
+  let next=new Date(start.getFullYear(),parts[1]-1,parts[2]);
+  if(next<start)next=new Date(start.getFullYear()+1,parts[1]-1,parts[2]);
+  return {...p,days:Math.round((next-start)/86400000)};
+ }).filter(x=>x&&x.days<=7).sort((a,b)=>a.days-b.days);
+ if(bds.length)add({cat:"birthday",level:bds[0].days===0?"success":"info",title:bds[0].days===0?"عيد ميلاد اليوم 🎉":"أعياد ميلاد خلال 7 أيام ("+bds.length+")",text:"لا تنس التهنئة.",items:bds.map(x=>x.full_name+" ("+x.kind+") — "+(x.days===0?"اليوم":"بعد "+x.days+" يوم")),page:"birthdays",btn:"فتح أعياد الميلاد"});
+
+ /* الافتقاد */
+ if(visitsOk&&everyone.length){
+  const todo=everyone.filter(x=>!visits[x.id]);
+  if(todo.length)add({cat:"visit",level:todo.length>everyone.length/2?"warning":"info",title:"لم يتم افتقاد "+todo.length+" من "+everyone.length,text:"تم افتقاد "+(everyone.length-todo.length)+" حتى الآن.",items:todo.map(x=>x.full_name+" ("+x.kind+")"),page:"visits",btn:"فتح الافتقاد"});
+  else add({cat:"visit",level:"success",title:"تم افتقاد الجميع ✅",text:"كل الأعضاء والخدام تم افتقادهم.",page:"visits",btn:"فتح الافتقاد"});
+ }
+
+ /* أعضاء جدد */
+ const weekAgo=Date.now()-7*86400000;
+ const fresh=everyone.filter(x=>x.joined&&new Date(x.joined).getTime()>weekAgo);
+ if(fresh.length)add({cat:"new",level:"info",title:"انضم خلال آخر 7 أيام ("+fresh.length+")",text:"رحّب بهم وتأكد من اكتمال بياناتهم.",items:fresh.map(x=>x.full_name+" ("+x.kind+")")});
+
+ /* بيانات ناقصة */
+ const noBirth=everyone.filter(x=>!x.birth_date).length;
+ const noArea=everyone.filter(x=>!x.residential_area).length;
+ const noYear=members.filter(x=>!x.study_year).length;
+ if(noBirth||noArea||noYear){
+  const parts=[];
+  if(noBirth)parts.push(noBirth+" بدون تاريخ ميلاد");
+  if(noArea)parts.push(noArea+" بدون منطقة سكن");
+  if(noYear)parts.push(noYear+" عضو بدون فرقة دراسية");
+  add({cat:"data",level:"info",title:"بيانات ناقصة",text:parts.join("، ")+". يمكنك استكمالها من زر «تعديل» في صفحة الأعضاء أو الخدام.",page:"members",btn:"فتح الأعضاء"});
+ }
+ return out.sort((a,b)=>lvOrder[a.level]-lvOrder[b.level]);
+}
+async function loadNotifications(silent){
+ if(!isStaff())return;
+ try{
+  await ensurePeople();
+  await fetchAttendanceData();
+  try{const f=await supabaseClient.from("followups").select("*");if(!f.error)followups=f.data||[];}catch(e){}
+  let visitsOk=false;
+  try{
+   const r=await supabaseClient.rpc("get_visits");
+   if(!r.error){
+    const rows=typeof r.data==="string"?JSON.parse(r.data):(r.data||[]);
+    visits={};rows.forEach(v=>{visits[v.profile_id]=v.visited_at;});visitsOk=true;
+   }
+  }catch(e){}
+  notifs=buildNotifications(visitsOk);
+  renderNotifications();
+  const urgent=notifs.filter(n=>n.level==="danger"||n.level==="warning").length;
+  const b=$("notifBadge");
+  b.textContent=urgent;
+  b.classList.toggle("hidden",!urgent);
+  if(!toastsShown){
+   toastsShown=true;
+   notifs.filter(n=>n.level!=="info").slice(0,3).forEach((n,i)=>setTimeout(()=>toast(lvIcon[n.level]+" "+n.title,n.level,"notifications"),600*i));
+  }
+ }catch(e){if(!silent)msg("تعذر تحميل الإشعارات: "+e.message,true);}
+}
+function renderNotifications(){
+ if(!$("notifList"))return;
+ const f=$("notifFilter").value;
+ const rows=notifs.filter(n=>f==="all"||n.cat===f);
+ $("nUrgent").textContent=notifs.filter(n=>n.level==="danger").length;
+ $("nWarn").textContent=notifs.filter(n=>n.level==="warning").length;
+ $("nInfo").textContent=notifs.filter(n=>n.level==="info"||n.level==="success").length;
+ $("notifTime").textContent="آخر تحديث: "+new Date().toLocaleTimeString("ar-EG",{timeZone:"Africa/Cairo",hour:"2-digit",minute:"2-digit"});
+ $("notifList").innerHTML=rows.map(n=>`<div class="notif ${n.level}">
+  <div class="row"><strong>${lvIcon[n.level]} ${safe(n.title)}</strong><span class="badge">${safe(catLabel[n.cat]||"")}</span></div>
+  <div>${safe(n.text||"")}</div>
+  ${n.items&&n.items.length?`<details><summary>عرض الأسماء (${n.items.length})</summary><ul>${n.items.map(i=>`<li>${safe(i)}</li>`).join("")}</ul></details>`:""}
+  ${n.page?`<button class="secondary" onclick="goPage('${n.page}')">${safe(n.btn||"فتح الصفحة")}</button>`:""}
+ </div>`).join("")||'<p class="muted">لا توجد إشعارات في هذا القسم.</p>';
+}
+
 /* الافتقاد */
 let visits={};
 const canVisit=()=>["system_admin","servant_admin","followup"].includes(currentProfile?.role);
@@ -904,6 +1111,7 @@ async function markVisit(id,visited){
   const res=typeof r.data==="string"?JSON.parse(r.data):r.data;
   if(!res?.success)throw new Error(res?.message||"تعذر الحفظ");
   await loadVisits();
+  loadNotifications(true);
   msg(visited?"تم افتقاد "+name+" بتاريخ "+fmtDate(visits[id]||new Date().toISOString()):"تم إرجاع "+name+" إلى لم يتم الافتقاد");
  }catch(e){msg("تعذر الحفظ: "+e.message,true);}
 }
@@ -932,6 +1140,7 @@ async function refreshAll(){
  await loadAttendance();
  await loadFollowups();
  renderBirthdays();
+ await loadNotifications(true);
 }
 async function startApp(){
  const {data:{session}}=await supabaseClient.auth.getSession();
