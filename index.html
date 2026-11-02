@@ -142,8 +142,9 @@ tr:last-child td{border-bottom:0}
 <div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><input id="code" placeholder="كود التفعيل"></div>
 <p id="codeHint" class="muted">التسجيل كطالب بكود التفعيل العادي.</p>
 <div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-cake"/></svg><input id="birthDate" type="date" aria-label="تاريخ الميلاد"></div>
-<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"/></svg><input id="education" placeholder="المرحلة الدراسية أو السن"></div>
-<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg><input id="area" placeholder="منطقة السكن"></div>
+<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"/></svg><select id="education" aria-label="فرقة كام ولا خريج؟"><option value="">فرقة كام؟ ولا خريج؟</option><option value="أولى">فرقة أولى</option><option value="تانية">فرقة تانية</option><option value="تالتة">فرقة تالتة</option><option value="رابعة">فرقة رابعة</option><option value="خريج">خريج</option></select></div>
+<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg><input id="area" placeholder="العنوان بالتفصيل (الشارع - رقم العمارة - الدور)"></div>
+<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg><select id="metro" aria-label="أقرب محطة مترو"></select></div>
 <button onclick="signup()"><svg class="ic" aria-hidden="true"><use href="#i-user-plus"/></svg>إنشاء الحساب</button>
 <button class="secondary" onclick="showLogin()"><svg class="ic" aria-hidden="true"><use href="#i-chevron-right"/></svg>رجوع</button>
 </div>
@@ -157,8 +158,8 @@ tr:last-child td{border-bottom:0}
 <p class="sub">لوحة إدارة أسرة الأنبا شنودة رئيس المتوحدين</p>
 <div class="row">
 <div>
-<strong id="welcomeName"></strong>
-<div class="muted" id="welcomeRole"></div>
+<strong id="welcomeName" style="font-size:1.2rem"></strong>
+<div class="muted" id="welcomeRole" style="font-size:1.45rem;font-weight:bold;margin-top:4px;line-height:1.5"></div>
 </div>
 <button class="secondary" onclick="logout()"><svg class="ic" aria-hidden="true"><use href="#i-log-out"/></svg>تسجيل الخروج</button>
 </div>
@@ -173,10 +174,9 @@ tr:last-child td{border-bottom:0}
 <button class="nav" data-page="notifications" onclick="openPage('notifications',this)"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>الإشعارات <span id="notifBadge" class="nbadge hidden"></span></button>
 <button class="nav" data-page="attendance" onclick="openPage('attendance',this)"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-check"/></svg>الحضور والغياب</button>
 <button class="nav" data-page="calendar" onclick="openPage('calendar',this)"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>التقويم</button>
-<button class="nav" data-page="members" onclick="openPage('members',this)"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>الأعضاء</button>
+<button class="nav" data-page="members" onclick="openPage('members',this)"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>المخدومين</button>
 <button class="nav" data-page="servants" onclick="openPage('servants',this)"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>الخدام</button>
 <button class="nav" data-page="reports" onclick="openPage('reports',this)"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg>التقارير والإحصائيات</button>
-<button class="nav" data-page="followups" onclick="openPage('followups',this)"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>المتابعة</button>
 <button class="nav" data-page="visits" onclick="openPage('visits',this)"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg>الافتقاد</button>
 <button class="nav" data-page="birthdays" onclick="openPage('birthdays',this)"><svg class="ic" aria-hidden="true"><use href="#i-cake"/></svg>أعياد الميلاد</button>
 <button class="nav hidden" id="navDeleted" data-page="deleted" onclick="openPage('deleted',this)"><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg>المحذوفون</button>
@@ -198,7 +198,7 @@ tr:last-child td{border-bottom:0}
 <h2><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg>مرحباً بك</h2>
 <p>نظام إدارة ومتابعة الأسرة وتسجيل الحضور.</p>
 <div class="stats">
-<div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>الأعضاء<strong id="homeMembers">—</strong></div>
+<div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>المخدومين<strong id="homeMembers">—</strong></div>
 <div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>الخدام<strong id="homeServants">—</strong></div>
 <div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-clipboard-check"/></svg>حضور اليوم<strong id="homeAttendance">—</strong></div>
 </div>
@@ -211,8 +211,8 @@ tr:last-child td{border-bottom:0}
 <h2><svg class="ic" aria-hidden="true"><use href="#i-clipboard-check"/></svg>الحضور والغياب</h2>
 <p class="muted">تحديث تلقائي كل 20 ثانية أثناء فتح الصفحة.</p>
 <div class="stats">
-<div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور الأعضاء<strong id="attMembers">—</strong></div>
-<div class="stat"><svg class="ic bad" aria-hidden="true"><use href="#i-user-x"/></svg>غياب الأعضاء<strong id="absMembers">—</strong></div>
+<div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور المخدومين<strong id="attMembers">—</strong></div>
+<div class="stat"><svg class="ic bad" aria-hidden="true"><use href="#i-user-x"/></svg>غياب المخدومين<strong id="absMembers">—</strong></div>
 <div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور الخدام<strong id="attServants">—</strong></div>
 <div class="stat"><svg class="ic bad" aria-hidden="true"><use href="#i-user-x"/></svg>غياب الخدام<strong id="absServants">—</strong></div>
 </div>
@@ -227,18 +227,13 @@ tr:last-child td{border-bottom:0}
 
 <section id="page-members" class="page">
 <div class="panel">
-<h2><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>الأعضاء</h2>
+<h2><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>المخدومين</h2>
 <div class="toolbar">
 <div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="memberSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderMembers()"></div>
 <button onclick="loadPeople()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث القائمة</button>
 </div>
-<div class="stats"><div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>إجمالي الأعضاء<strong id="membersCount">—</strong></div></div>
-<div class="table-wrap">
-<table>
-<thead><tr><th>إجراءات</th><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>الفرقة الدراسية</th><th>السكن</th><th>الحضور</th><th>النسبة</th><th>المتابعة</th></tr></thead>
-<tbody id="membersTable"></tbody>
-</table>
-</div>
+<div class="stats"><div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>إجمالي المخدومين<strong id="membersCount">—</strong></div></div>
+<div id="membersList"></div>
 </div>
 </section>
 
@@ -250,12 +245,7 @@ tr:last-child td{border-bottom:0}
 <button onclick="loadPeople()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث القائمة</button>
 </div>
 <div class="stats"><div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>إجمالي الخدام<strong id="servantsCount">—</strong></div></div>
-<div class="table-wrap">
-<table>
-<thead><tr><th>إجراءات</th><th>الاسم</th><th>الموبايل</th><th>تاريخ الميلاد</th><th>المسؤولية</th><th>السكن</th><th>الحضور</th><th>النسبة</th></tr></thead>
-<tbody id="servantsTable"></tbody>
-</table>
-</div>
+<div id="servantsList"></div>
 </div>
 </section>
 
@@ -271,8 +261,8 @@ tr:last-child td{border-bottom:0}
 <button onclick="loadReports()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث التقارير</button>
 </div>
 <div class="stats">
-<div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور الأعضاء<strong id="reportMemberCount">—</strong></div>
-<div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg>نسبة حضور الأعضاء<strong id="reportMemberRate">—</strong></div>
+<div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور المخدومين<strong id="reportMemberCount">—</strong></div>
+<div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg>نسبة حضور المخدومين<strong id="reportMemberRate">—</strong></div>
 <div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-user-check"/></svg>حضور الخدام<strong id="reportServantCount">—</strong></div>
 <div class="stat"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg>نسبة حضور الخدام<strong id="reportServantRate">—</strong></div>
 </div>
@@ -280,17 +270,6 @@ tr:last-child td{border-bottom:0}
 </div>
 </section>
 
-<section id="page-followups" class="page">
-<div class="panel">
-<h2><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>متابعة الأعضاء</h2>
-<p class="muted">حالات المتابعة المعتمدة في النظام.</p>
-<div class="toolbar">
-<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="followSearch" placeholder="بحث باسم العضو" oninput="renderFollowups()"></div>
-<button onclick="loadFollowups()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث</button>
-</div>
-<div id="followList"></div>
-</div>
-</section>
 
 <section id="page-calendar" class="page">
 <div class="panel">
@@ -311,7 +290,7 @@ tr:last-child td{border-bottom:0}
 <section id="page-notifications" class="page">
 <div class="panel">
 <h2><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>مركز الإشعارات</h2>
-<p class="muted">تنبيهات وإحصائيات تُحسب تلقائياً من بيانات النظام: الغياب، أعياد الميلاد، الافتقاد، المتابعة، الحضور، والبيانات الناقصة.</p>
+<p class="muted">تنبيهات وإحصائيات تُحسب تلقائياً من بيانات النظام: الغياب، أعياد الميلاد، الافتقاد، الحضور، والبيانات الناقصة.</p>
 <div class="stats">
 <div class="stat"><svg class="ic bad" aria-hidden="true"><use href="#i-alert-circle"/></svg>عاجل<strong id="nUrgent">—</strong></div>
 <div class="stat"><svg class="ic warn" aria-hidden="true"><use href="#i-alert-triangle"/></svg>تحذيرات<strong id="nWarn">—</strong></div>
@@ -321,11 +300,10 @@ tr:last-child td{border-bottom:0}
 <select id="notifFilter" onchange="renderNotifications()">
 <option value="all">كل الإشعارات</option>
 <option value="absence">الغياب</option>
-<option value="follow">المتابعة</option>
 <option value="visit">الافتقاد</option>
 <option value="stats">الإحصائيات</option>
 <option value="birthday">أعياد الميلاد</option>
-<option value="new">أعضاء جدد</option>
+<option value="new">مخدومين جدد</option>
 <option value="data">بيانات ناقصة</option>
 </select>
 <button onclick="loadNotifications()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث الإشعارات</button>
@@ -338,37 +316,32 @@ tr:last-child td{border-bottom:0}
 <section id="page-visits" class="page">
 <div class="panel">
 <h2><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg>الافتقاد</h2>
-<p class="muted">كل الأعضاء والخدام المسجلين. اضغط "تم الافتقاد" لينتقل الشخص إلى جدول "تم الافتقاد" مع تاريخ اليوم.</p>
+<p class="muted">المخدومين والخدام مجمّعون حسب أقرب محطة مترو. اضغط على المحطة لتظهر بيانات كل شخص بالعنوان التفصيلي، واضغط "تم الافتقاد" لينتقل لقائمة "تم الافتقاد" مع تاريخ اليوم. الافتقاد يتجدد تلقائياً مع بداية كل شهر.</p>
 <div class="stats">
 <div class="stat"><svg class="ic warn" aria-hidden="true"><use href="#i-clock"/></svg>لم يتم الافتقاد<strong id="visitTodoCount">—</strong></div>
 <div class="stat"><svg class="ic good" aria-hidden="true"><use href="#i-check-circle"/></svg>تم الافتقاد<strong id="visitDoneCount">—</strong></div>
 </div>
 <div class="toolbar">
-<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="visitSearch" placeholder="بحث بالاسم أو رقم الهاتف" oninput="renderVisits()"></div>
+<div class="fld"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="visitSearch" placeholder="بحث بالاسم أو الهاتف أو العنوان أو المحطة" oninput="renderVisits()"></div>
 <select id="visitKind" onchange="renderVisits()">
-<option value="all">الأعضاء والخدام</option>
-<option value="عضو">الأعضاء فقط</option>
+<option value="all">المخدومين والخدام</option>
+<option value="مخدوم">المخدومين فقط</option>
 <option value="خادم">الخدام فقط</option>
 </select>
+<select id="visitArea" onchange="renderVisits()"><option value="all">كل المحطات</option></select>
 <button onclick="loadVisits()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>تحديث</button>
 </div>
 <h3><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>لم يتم الافتقاد</h3>
-<div class="table-wrap"><table style="min-width:440px">
-<thead><tr><th>إجراء</th><th>الاسم</th><th>النوع</th><th>الموبايل</th></tr></thead>
-<tbody id="visitTodoTable"></tbody>
-</table></div>
+<div id="visitTodoList"></div>
 <h3><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>تم الافتقاد</h3>
-<div class="table-wrap"><table style="min-width:520px">
-<thead><tr><th>إجراء</th><th>الاسم</th><th>النوع</th><th>الموبايل</th><th>تاريخ الافتقاد</th></tr></thead>
-<tbody id="visitDoneTable"></tbody>
-</table></div>
+<div id="visitDoneList"></div>
 </div>
 </section>
 
 <section id="page-birthdays" class="page">
 <div class="panel">
 <h2><svg class="ic" aria-hidden="true"><use href="#i-cake"/></svg>أعياد الميلاد القادمة</h2>
-<p class="muted">الأعضاء والخدام خلال الـ 30 يومًا القادمة.</p>
+<p class="muted">المخدومين والخدام خلال الـ 30 يومًا القادمة.</p>
 <div id="birthdayList"></div>
 </div>
 </section>
@@ -388,7 +361,7 @@ tr:last-child td{border-bottom:0}
 <section id="page-deleted" class="page">
 <div class="panel">
 <h2><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg>المحذوفون</h2>
-<p class="muted">من تم حذفه لا يظهر في القوائم ولا يستطيع الدخول. اضغط "استرجاع" ليعود كما كان (عضو أو خادم) بنفس بياناته وسجل حضوره.</p>
+<p class="muted">من تم حذفه لا يظهر في القوائم ولا يستطيع الدخول. اضغط "استرجاع" ليعود كما كان (مخدوم أو خادم) بنفس بياناته وسجل حضوره.</p>
 <div id="deletedList"></div>
 </div>
 </section>
@@ -417,14 +390,16 @@ tr:last-child td{border-bottom:0}
 <h3 id="editTitle"></h3>
 <div id="eTypeWrap" class="hidden">
 <label for="eType">النوع</label>
-<select id="eType" onchange="onTypeChange()"><option value="member">عضو</option><option value="servant">خادم</option></select>
+<select id="eType" onchange="onTypeChange()"><option value="member">مخدوم</option><option value="servant">خادم</option></select>
 </div>
 <label for="eName">الاسم</label>
 <input id="eName">
 <label for="eBirth">تاريخ الميلاد</label>
 <input id="eBirth" type="date">
-<label for="eArea">منطقة السكن</label>
+<label for="eArea">العنوان بالتفصيل</label>
 <input id="eArea">
+<label for="eMetro">أقرب محطة مترو</label>
+<select id="eMetro"></select>
 <label for="eExtra" id="eExtraLabel"></label>
 <input id="eExtra" list="eYears">
 <datalist id="eYears"></datalist>
@@ -454,11 +429,39 @@ const FUNCTION_URL=SUPABASE_URL+"/functions/v1/login-with-phone";
 const $=id=>document.getElementById(id);
 const ico=(n,c)=>`<svg class="ic${c?" "+c:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 let currentProfile=null;
-let members=[],servants=[],meetings=[],attendance=[],followups=[];
+let members=[],servants=[],meetings=[],attendance=[];
 let refreshTimer=null,peopleLoaded=false,deletedPeople=[];
 
 const staffRoles=["system_admin","servant_admin","followup","viewer"];
-const followStatuses=["لم يتم التواصل","جاري المتابعة","تم التواصل","يحتاج متابعة مرة أخرى"];
+/* محطات مترو القاهرة - عدّل القائمة لو افتتحت محطات جديدة */
+const metroLines=[
+ {name:"الخط الأول (المرج – حلوان)",st:["المرج الجديدة","المرج","عزبة النخل","عين شمس","المطرية","حلمية الزيتون","حدائق الزيتون","سراي القبة","حمامات القبة","كوبري القبة","منشية الصدر","الدمرداش","غمرة","الشهداء","أحمد عرابي","جمال عبد الناصر","السادات","سعد زغلول","السيدة زينب","الملك الصالح","مار جرجس","الزهراء","دار السلام","حدائق المعادي","المعادي","ثكنات المعادي","طرة البلد","كوتسيكا","طرة الأسمنت","المعصرة","حدائق حلوان","وادي حوف","جامعة حلوان","عين حلوان","حلوان"]},
+ {name:"الخط الثاني (شبرا الخيمة – المنيب)",st:["شبرا الخيمة","كلية الزراعة","المظلات","الخلفاوي","سانت تريزا","روض الفرج","مسرة","الشهداء","العتبة","محمد نجيب","السادات","الأوبرا","الدقي","البحوث","جامعة القاهرة","فيصل","الجيزة","أم المصريين","ساقية مكي","المنيب"]},
+ {name:"الخط الثالث (عدلي منصور – روض الفرج)",st:["عدلي منصور","الهايكستب","عمر بن الخطاب","قباء","هشام بركات","النزهة","نادي الشمس","ألف مسكن","ميدان هليوبوليس","هارون","الأهرام","كلية البنات","الاستاد","أرض المعارض","العباسية","عبده باشا","الجيش","باب الشعرية","العتبة","جمال عبد الناصر","ماسبيرو","صفاء حجازي","الكيت كات","السودان","إمبابة","البوهي","القومية العربية","الطريق الدائري","روض الفرج (محور)"]}
+];
+const NO_METRO="لا توجد محطة مترو قريبة";
+function metroOptionsHtml(){
+ const seen=new Set();
+ let h='<option value="">— اختر أقرب محطة مترو —</option>';
+ metroLines.forEach(l=>{
+  const items=l.st.filter(n=>!seen.has(n));
+  items.forEach(n=>seen.add(n));
+  if(items.length)h+=`<optgroup label="${safe(l.name)}">`+items.map(n=>`<option value="${safe(n)}">${safe(n)}</option>`).join("")+"</optgroup>";
+ });
+ h+=`<optgroup label="أخرى"><option value="${NO_METRO}">${NO_METRO}</option></optgroup>`;
+ return h;
+}
+function fillMetroSelects(){
+ ["metro","eMetro"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=metroOptionsHtml();});
+}
+function setMetroValue(sel,val){
+ val=(val||"").trim();
+ if(val&&![...sel.options].some(o=>o.value===val)){
+  const o=document.createElement("option");o.value=val;o.textContent=val;sel.appendChild(o);
+ }
+ sel.value=val;
+}
+const rpcJson=d=>typeof d==="string"?JSON.parse(d):d;
 const studyYears=["أولى","تانية","تالتة","رابعة","خريج"];
 
 function msg(text,error=false){
@@ -513,10 +516,10 @@ function openPage(name,button){
  $("page-"+name).classList.add("active");
  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
  if(button)button.classList.add("active");
+ if(button&&window.matchMedia("(max-width:768px)").matches){try{button.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});}catch(e){}}
  if(name==="attendance")loadAttendance();
  if(name==="members"||name==="servants")loadPeople();
  if(name==="reports")loadReports();
- if(name==="followups")loadFollowups();
  if(name==="visits")loadVisits();
  if(name==="notifications")loadNotifications();
  if(name==="calendar")loadCalendar();
@@ -578,7 +581,10 @@ async function signup(){
    residential_area:$("area").value.trim()
   });
   const result=await callLoginFunction({action:"login",phone,password});
-  await setSession(result);
+  await supabaseClient.auth.setSession({access_token:result.session.access_token,refresh_token:result.session.refresh_token});
+  const metroVal=$("metro").value;
+  if(metroVal){try{await supabaseClient.rpc("set_my_metro",{p_station:metroVal});}catch(e){}}
+  await loadProfile();
  }catch(e){authMsg(e.message,true);}
 }
 document.addEventListener("keydown",e=>{
@@ -587,7 +593,7 @@ document.addEventListener("keydown",e=>{
 });
 
 function roleName(role){
- return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"خادم (عرض فقط)",member:"عضو"})[role]||role||"غير محدد";
+ return ({system_admin:"مسؤول النظام",servant_admin:"مسؤول الخدام",followup:"مسؤول المتابعة",viewer:"خادم (عرض فقط)",member:"مخدوم"})[role]||role||"غير محدد";
 }
 async function loadProfile(){
  const {data:{user}}=await supabaseClient.auth.getUser();
@@ -640,7 +646,7 @@ async function logout(){
  await supabaseClient.auth.signOut();
  currentProfile=null;peopleLoaded=false;toastsShown=false;notifs=[];
  $("checkinBanner").classList.add("hidden");
- members=[];servants=[];meetings=[];attendance=[];followups=[];
+ members=[];servants=[];meetings=[];attendance=[];
  showAuth();
  authMsg("تم تسجيل الخروج");
 }
@@ -652,7 +658,7 @@ async function checkInFromLink(){
 }
 function showCheckin(text,ok){
  const b=$("checkinBanner");
- b.innerHTML=ico(ok?"check-circle":"alert-triangle")+" "+safe(text);
+ b.innerHTML=ico(ok?"check-circle":"alert-triangle")+" "+safe(text)+(ok?'<div style="font-size:1.25rem;margin-top:8px">شكراً ومستنينك كل مرة ❤️🫰🏻</div>':"");
  b.style.cssText="text-align:center;font-weight:bold;background:"+(ok?"#e6f4ea":"#fdecea")+";border-color:"+(ok?"#27834b":"#c0392b")+";color:"+(ok?"#1e6b3c":"#a93226");
  b.classList.remove("hidden");
 }
@@ -664,7 +670,7 @@ async function checkIn(){
   const result=typeof data==="string"?JSON.parse(data):data;
   const ok=!!result?.success;
   const text=result?.message||(ok?"تم تسجيل حضورك في الاجتماع":"تعذر تسجيل الحضور");
-  msg(text,!ok);
+  msg(ok?text+" - شكراً ومستنينك كل مرة ❤️🫰🏻":text,!ok);
   showCheckin(text,ok);
   /* ننظف الرابط حتى لا يتكرر التسجيل عند إعادة تحميل الصفحة */
   if(new URLSearchParams(location.search).get("checkin")==="1")history.replaceState({},"",location.pathname);
@@ -672,23 +678,23 @@ async function checkIn(){
  }catch(e){msg("تعذر تسجيل الحضور: "+e.message,true);showCheckin("تعذر تسجيل الحضور: "+e.message,false);}
 }
 
-/* الأعضاء والخدام */
+/* المخدومين والخدام */
 async function loadPeople(){
  if(!isStaff())return;
- msg("جاري تحميل بيانات الأعضاء والخدام...");
+ msg("جاري تحميل بيانات المخدومين والخدام...");
  try{
-  const cols="id,full_name,phone,birth_date,residential_area,education_or_age,role,is_active";
+  const cols="id,full_name,phone,birth_date,residential_area,nearest_metro,education_or_age,role,is_active";
   const [m,s]=await Promise.all([
    supabaseClient.from("members").select(`profile_id,study_year,created_at,profiles!members_profile_id_fkey(${cols})`).order("created_at"),
    supabaseClient.from("servants").select(`profile_id,responsibility,created_at,profiles!servants_profile_id_fkey(${cols})`).order("created_at")
   ]);
-  if(m.error)throw new Error("الأعضاء: "+m.error.message);
+  if(m.error)throw new Error("المخدومين: "+m.error.message);
   if(s.error)throw new Error("الخدام: "+s.error.message);
   const allM=(m.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,study_year:x.study_year||"",joined:x.created_at}));
   const allS=(s.data||[]).filter(x=>x.profiles).map(x=>({...x.profiles,responsibility:x.responsibility||roleName(x.profiles.role),joined:x.created_at}));
   members=allM.filter(x=>x.is_active!==false);
   servants=allS.filter(x=>x.is_active!==false);
-  deletedPeople=[...allM.filter(x=>x.is_active===false).map(x=>({...x,kind:"عضو"})),...allS.filter(x=>x.is_active===false).map(x=>({...x,kind:"خادم"}))];
+  deletedPeople=[...allM.filter(x=>x.is_active===false).map(x=>({...x,kind:"مخدوم"})),...allS.filter(x=>x.is_active===false).map(x=>({...x,kind:"خادم"}))];
   peopleLoaded=true;
   $("homeMembers").textContent=members.length;
   $("homeServants").textContent=servants.length;
@@ -711,35 +717,61 @@ function attendanceRate(p){
  const att=new Set(attendance.filter(a=>a.member_id===p.id&&ids.has(a.meeting_id)).map(a=>a.meeting_id)).size;
  return Math.min(100,Math.round(att/ids.size*100));
 }
-function followFor(id){return followups.find(x=>x.member_id===id);}
 
+const peopleOpen=new Set(),grpClosed=new Set();
+function personToggle(el){if(el.open)peopleOpen.add(el.dataset.id);else peopleOpen.delete(el.dataset.id);}
+function grpToggle(el){if(el.open)grpClosed.delete(el.dataset.g);else grpClosed.add(el.dataset.g);}
+const sortByName=l=>l.sort((a,b)=>(a.full_name||"").localeCompare(b.full_name||"","ar"));
+const pline=(label,val)=>`<div><span class="muted">${label}:</span> ${val}</div>`;
+function pActions(x,kind){
+ const edit=canEdit()?`<button class="secondary" onclick="${kind==="member"?"editMember":"editServant"}('${x.id}')">${ico("pencil")}تعديل</button>`:"";
+ const del=canDelete(x)?`<button class="danger" onclick="removePerson('${kind}','${x.id}')">${ico("trash")}حذف</button>`:"";
+ return (edit||del)?`<div class="pact">${edit}${del}</div>`:"";
+}
+/* اسم فقط، والضغط عليه يفتح بيانات الشخص كاملة */
+function personItem(x,kind){
+ const rows=[
+  pline("الموبايل",x.phone?`<a href="tel:${safe(x.phone)}">${ico("phone")}${safe(x.phone)}</a>`:"—"),
+  pline("تاريخ الميلاد",x.birth_date?safe(fmtDate(x.birth_date)):"—"),
+  kind==="member"?pline("الفرقة الدراسية",safe(x.study_year||"غير مسجل")):pline("المسؤولية",safe(x.responsibility||"—")),
+  pline("العنوان بالتفصيل",safe(x.residential_area||"—")),
+  pline("أقرب محطة مترو",safe(x.nearest_metro||"—")),
+  pline("الحضور",attendanceCount(x.id)),
+  pline("النسبة",attendanceRate(x)+"%")
+ ].join("");
+ return `<details class="person" data-id="${safe(x.id)}"${peopleOpen.has(x.id)?" open":""} ontoggle="personToggle(this)"><summary>${safe(x.full_name||"—")}</summary><div class="card">${rows}${pActions(x,kind)}</div></details>`;
+}
+function yearKey(v){
+ const t=String(v||"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/\s+/g," ").trim();
+ if(!t)return "none";
+ if(/خريج/.test(t))return "grad";
+ if(/اول/.test(t)||/(^|\s)1(\s|$)/.test(t))return "y1";
+ if(/تاني|ثاني/.test(t)||/(^|\s)2(\s|$)/.test(t))return "y2";
+ if(/تالت|ثالث/.test(t)||/(^|\s)3(\s|$)/.test(t))return "y3";
+ if(/رابع/.test(t)||/(^|\s)4(\s|$)/.test(t))return "y4";
+ return "none";
+}
+const yearGroups=[["y1","فرقة أولى"],["y2","فرقة تانية"],["y3","فرقة تالتة"],["y4","فرقة رابعة"],["grad","خريج"],["none","الفرقة غير مسجلة"]];
 function renderMembers(){
  const q=($("memberSearch").value||"").trim().toLowerCase();
  const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
- $("membersTable").innerHTML=rows.map(x=>{
-  const f=followFor(x.id);
-  return `<tr>
-   <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editMember('${x.id}')">${ico("pencil")}تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('member','${x.id}')">${ico("trash")}حذف</button>`:""}</td>
-   <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
-   <td>${safe(x.birth_date||"—")}</td>
-   <td>${safe(x.study_year||"غير مسجل")}</td>
-   <td>${safe(x.residential_area||"—")}</td>
-   <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
-   <td>${safe(f?.status||"لم يتم التواصل")}</td>
-  </tr>`;
- }).join("")||'<tr><td colspan="9">لا توجد بيانات مطابقة</td></tr>';
+ const by={};
+ rows.forEach(x=>{const k=yearKey(x.study_year);(by[k]=by[k]||[]).push(x);});
+ const html=yearGroups.map(([k,label])=>{
+  const list=sortByName(by[k]||[]);
+  const core=["y1","y2","y3","y4"].includes(k);
+  if(!list.length&&(!core||q))return "";
+  const gk="m|"+k;
+  return `<details class="grp" data-g="${gk}"${grpClosed.has(gk)?"":" open"} ontoggle="grpToggle(this)"><summary>${label}<span class="badge">${list.length}</span></summary><div class="grp-b">${list.length?list.map(x=>personItem(x,"member")).join(""):'<p class="muted">لا يوجد أحد</p>'}</div></details>`;
+ }).join("");
+ $("membersList").innerHTML=html||'<p class="muted">لا توجد بيانات مطابقة</p>';
 }
 function renderServants(){
  const q=($("servantSearch").value||"").trim().toLowerCase();
- const rows=servants.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q));
- $("servantsTable").innerHTML=rows.map(x=>`<tr>
-  <td style="white-space:nowrap">${canEdit()?`<button class="secondary" onclick="editServant('${x.id}')">${ico("pencil")}تعديل</button>`:"—"} ${canDelete(x)?`<button class="danger" onclick="removePerson('servant','${x.id}')">${ico("trash")}حذف</button>`:""}</td>
-  <td>${safe(x.full_name)}</td><td>${safe(x.phone)}</td>
-  <td>${safe(x.birth_date||"—")}</td><td>${safe(x.responsibility)}</td>
-  <td>${safe(x.residential_area||"—")}</td>
-  <td>${attendanceCount(x.id)}</td><td>${attendanceRate(x)}%</td>
- </tr>`).join("")||'<tr><td colspan="8">لا توجد بيانات مطابقة</td></tr>';
+ const rows=sortByName(servants.filter(x=>(x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q)));
+ $("servantsList").innerHTML=rows.length?`<div class="grp"><div class="grp-b">${rows.map(x=>personItem(x,"servant")).join("")}</div></div>`:'<p class="muted">لا توجد بيانات مطابقة</p>';
 }
+const addrCell=x=>safe(x.residential_area||"—")+(x.nearest_metro?`<br><span class="muted">${ico("map-pin")} ${safe(x.nearest_metro)}</span>`:"");
 function canEdit(){return ["system_admin","servant_admin"].includes(currentProfile?.role);}
 let editing=null;
 function editMember(id){openEdit("member",id);}
@@ -754,7 +786,7 @@ function openEdit(kind,id){
  if(!canEdit())return;
  const x=(kind==="member"?members:servants).find(p=>p.id===id);if(!x)return;
  editing={kind,id};
- /* تغيير النوع: لمسؤول النظام فقط، وليس لنفسه، وللأعضاء والخدام العاديين فقط */
+ /* تغيير النوع: لمسؤول النظام فقط، وليس لنفسه، وللمخدومين والخدام العاديين فقط */
  const canType=currentProfile.role==="system_admin"&&id!==currentProfile.id&&["member","viewer"].includes(x.role);
  $("eTypeWrap").classList.toggle("hidden",!canType);
  $("eDelete").classList.toggle("hidden",!canType);
@@ -763,6 +795,7 @@ function openEdit(kind,id){
  $("eName").value=x.full_name||"";
  $("eBirth").value=x.birth_date||"";
  $("eArea").value=x.residential_area||"";
+ setMetroValue($("eMetro"),x.nearest_metro);
  setExtra(kind,kind==="member"?x.study_year:x.responsibility);
  $("editMsg").textContent="";
  $("editModal").classList.remove("hidden");
@@ -821,7 +854,7 @@ async function saveEdit(){
  const extra=$("eExtra").value.trim();
  const newKind=$("eTypeWrap").classList.contains("hidden")?kind:$("eType").value;
  if(!name){$("editMsg").style.color="#c0392b";$("editMsg").textContent="الاسم لا يمكن أن يكون فارغاً";return;}
- if(newKind!==kind&&!confirm(newKind==="servant"?"تحويل "+name+" من عضو إلى خادم؟":"تحويل "+name+" من خادم إلى عضو؟"))return;
+ if(newKind!==kind&&!confirm(newKind==="servant"?"تحويل "+name+" من مخدوم إلى خادم؟":"تحويل "+name+" من خادم إلى مخدوم؟"))return;
  try{
   $("editMsg").style.color="#27834b";$("editMsg").textContent="جاري الحفظ...";
   if(newKind!==kind){
@@ -837,6 +870,14 @@ async function saveEdit(){
   if(u.error)throw u.error;
   const ur=typeof u.data==="string"?JSON.parse(u.data):u.data;
   if(!ur?.success)throw new Error(ur?.message||"تعذر الحفظ");
+  const curP=[...members,...servants].find(z=>z.id===id);
+  const newMetro=$("eMetro").value;
+  if(newMetro!==(curP?.nearest_metro||"")){
+   const mr=await supabaseClient.rpc("set_person_metro",{p_profile_id:id,p_station:newMetro});
+   if(mr.error)throw mr.error;
+   const mres=rpcJson(mr.data);
+   if(!mres?.success)throw new Error(mres?.message||"تعذر حفظ محطة المترو");
+  }
   closeEdit();
   await loadPeople();
   msg(newKind!==kind?"تم تحويل "+name+" وحفظ التعديلات":"تم حفظ التعديلات");
@@ -894,11 +935,11 @@ async function loadAttendance(){
   $("presentList").innerHTML=todayRows.map(a=>{
    const p=everyone.find(x=>x.id===a.member_id);
    return `<div class="card"><strong>${safe(p?.full_name||"حساب غير معروف")}</strong>
-    <span class="badge">${memberIds.has(a.member_id)?"عضو":"خادم"}</span>
+    <span class="badge">${memberIds.has(a.member_id)?"مخدوم":"خادم"}</span>
     <div class="muted">وقت التسجيل: ${safe(new Date(a.checked_in_at).toLocaleString("ar-EG",{timeZone:"Africa/Cairo"}))}</div></div>`;
   }).join("")||'<p class="muted">لم يسجل أحد الحضور في اجتماع اليوم.</p>';
   const absent=closed?everyone.filter(x=>!presentIds.has(x.id)):[];
-  $("absentList").innerHTML=absent.map(p=>`<div class="card">${safe(p.full_name)} <span class="badge">${memberIds.has(p.id)?"عضو":"خادم"}</span></div>`).join("")||
+  $("absentList").innerHTML=absent.map(p=>`<div class="card">${safe(p.full_name)} <span class="badge">${memberIds.has(p.id)?"مخدوم":"خادم"}</span></div>`).join("")||
    (closed?'<p class="muted">لا يوجد غياب مسجل.</p>':'<p class="muted">سيظهر الغياب بعد انتهاء الاجتماع.</p>');
   renderMembers();renderServants();
  }catch(e){msg("تعذر تحميل الحضور والاجتماعات: "+e.message,true);}
@@ -940,55 +981,6 @@ function renderReports(){
  <span class="muted">النسبة = تسجيلات الحضور ÷ (عدد الأشخاص × عدد الاجتماعات في الفترة).</span></div>`;
 }
 
-/* المتابعة */
-async function loadFollowups(){
- if(!isStaff())return;
- try{
-  await ensurePeople();
-  const {data,error}=await supabaseClient.from("followups").select("*");
-  if(error)throw error;
-  followups=data||[];
-  renderFollowups();renderMembers();
- }catch(e){msg("تعذر تحميل المتابعة: "+e.message,true);}
-}
-function renderFollowups(){
- const q=($("followSearch").value||"").trim().toLowerCase();
- const rows=members.filter(x=>(x.full_name||"").toLowerCase().includes(q));
- $("followList").innerHTML=rows.map(x=>{
-  const f=followFor(x.id);
-  const status=f?.status||"لم يتم التواصل";
-  return `<div class="card">
-   <strong>${safe(x.full_name)}</strong>
-   <div class="muted">${safe(x.phone||"")}</div>
-   <label for="status-${x.id}">حالة المتابعة</label>
-   <select id="status-${x.id}">${followStatuses.map(s=>`<option ${s===status?"selected":""}>${s}</option>`).join("")}</select>
-   <textarea id="notes-${x.id}" placeholder="ملاحظات المتابعة">${safe(f?.notes||"")}</textarea>
-   <button onclick="saveFollowup('${x.id}')">${ico("check")}حفظ المتابعة</button>
-  </div>`;
- }).join("")||'<p class="muted">لا توجد بيانات أعضاء.</p>';
-}
-async function saveFollowup(id){
- const status=$("status-"+id).value;
- const notes=$("notes-"+id).value.trim();
- const now=new Date().toISOString();
- const existing=followFor(id);
- const contact=status==="تم التواصل"?now:(existing?.last_contact_at||null);
- const run=async extra=>{
-  const body={status,notes,last_contact_at:contact,...extra};
-  return existing
-   ?supabaseClient.from("followups").update(body).eq("id",existing.id)
-   :supabaseClient.from("followups").insert({member_id:id,...body});
- };
- try{
-  let r=await run({updated_by:currentProfile.id,updated_at:now});
-  /* لو أعمدة updated_by / updated_at غير موجودة نعيد المحاولة بدونها */
-  if(r.error&&/column|schema cache/i.test(r.error.message))r=await run({});
-  if(r.error)throw r.error;
-  msg("تم حفظ حالة المتابعة");
-  await loadFollowups();
- }catch(e){msg("تعذر حفظ المتابعة. قد تكون الصلاحية غير متاحة: "+e.message,true);}
-}
-
 /* خروج تلقائي عند عدم النشاط (30 دقيقة) */
 let idleT=null,idleBound=false;
 const IDLE_MS=30*60*1000;
@@ -1007,9 +999,9 @@ function startIdle(){
 function stopIdle(){clearTimeout(idleT);}
 
 /* سجل العمليات */
-const auditTbl={profiles:"البيانات الشخصية",members:"بيانات العضو",servants:"بيانات الخادم",visits:"الافتقاد",followups:"المتابعة"};
+const auditTbl={profiles:"البيانات الشخصية",members:"بيانات المخدوم",servants:"بيانات الخادم",visits:"الافتقاد",followups:"المتابعة"};
 const auditOp={INSERT:"إضافة",UPDATE:"تعديل",DELETE:"حذف"};
-const auditField={full_name:"الاسم",birth_date:"تاريخ الميلاد",residential_area:"السكن",education_or_age:"المرحلة/السن",role:"الدور",is_active:"حالة الحساب",phone:"الموبايل",study_year:"الفرقة الدراسية",responsibility:"المسؤولية",status:"حالة المتابعة",notes:"الملاحظات",last_contact_at:"آخر تواصل",visited_at:"تاريخ الافتقاد",assigned_to:"المسؤول"};
+const auditField={full_name:"الاسم",birth_date:"تاريخ الميلاد",residential_area:"العنوان",nearest_metro:"أقرب محطة مترو",education_or_age:"الفرقة / خريج",role:"الدور",is_active:"حالة الحساب",phone:"الموبايل",study_year:"الفرقة الدراسية",responsibility:"المسؤولية",status:"حالة المتابعة",notes:"الملاحظات",last_contact_at:"آخر تواصل",visited_at:"تاريخ الافتقاد",assigned_to:"المسؤول"};
 async function loadAudit(){
  if(currentProfile?.role!=="system_admin")return;
  try{
@@ -1031,10 +1023,10 @@ async function loadAudit(){
 let calY=null,calM=null,calSel=null;
 function meetingStats(m){
  const ids=new Set(attendance.filter(a=>a.meeting_id===m.id).map(a=>a.member_id));
- const pm=members.filter(x=>ids.has(x.id)).map(x=>({...x,kind:"عضو"}));
+ const pm=members.filter(x=>ids.has(x.id)).map(x=>({...x,kind:"مخدوم"}));
  const ps=servants.filter(x=>ids.has(x.id)).map(x=>({...x,kind:"خادم"}));
  const closed=isMeetingClosed(m);
- const eligible=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))].filter(p=>{const j=joinDate(p);return !j||j<=m.meeting_date;});
+ const eligible=[...members.map(x=>({...x,kind:"مخدوم"})),...servants.map(x=>({...x,kind:"خادم"}))].filter(p=>{const j=joinDate(p);return !j||j<=m.meeting_date;});
  const absent=closed?eligible.filter(p=>!ids.has(p.id)):[];
  return {present:pm.length+ps.length,mem:pm.length,srv:ps.length,closed,absent,presentList:[...pm,...ps]};
 }
@@ -1092,7 +1084,7 @@ function renderCalendar(){
  const li=l=>l.map(p=>`<li>${safe(p.full_name)} <span class="badge">${p.kind}</span></li>`).join("");
  $("calDetail").innerHTML=`<div class="card">
   <strong>اجتماع ${safe(label)}</strong>
-  <div>حضر <strong>${st.present}</strong> (${st.mem} عضو و${st.srv} خادم)${st.closed?" — غاب <strong>"+st.absent.length+"</strong>":" — الاجتماع جارٍ والغياب يظهر بعد انتهائه"}</div>
+  <div>حضر <strong>${st.present}</strong> (${st.mem} مخدوم و${st.srv} خادم)${st.closed?" — غاب <strong>"+st.absent.length+"</strong>":" — الاجتماع جارٍ والغياب يظهر بعد انتهائه"}</div>
   <details><summary>الحاضرون (${st.present})</summary><ul>${li(st.presentList)||"<li>لا أحد</li>"}</ul></details>
   ${st.closed?`<details><summary>الغائبون (${st.absent.length})</summary><ul>${li(st.absent)||"<li>لا أحد</li>"}</ul></details>`:""}
  </div>`;
@@ -1100,9 +1092,9 @@ function renderCalendar(){
 
 /* مركز الإشعارات */
 let notifs=[],toastsShown=false;
-const catLabel={absence:"غياب",follow:"متابعة",stats:"إحصائيات",birthday:"أعياد الميلاد",visit:"الافتقاد",data:"بيانات",new:"أعضاء جدد",meeting:"الاجتماع"};
+const catLabel={absence:"غياب",stats:"إحصائيات",birthday:"أعياد الميلاد",visit:"الافتقاد",data:"بيانات",new:"مخدومين جدد",meeting:"الاجتماع"};
 const lvIcon={danger:"alert-circle",warning:"alert-triangle",info:"info",success:"check-circle"};
-const catIcon={absence:"user-x",follow:"phone",stats:"bar-chart",birthday:"cake",visit:"heart",data:"info",new:"user-plus",meeting:"calendar"};
+const catIcon={absence:"user-x",stats:"bar-chart",birthday:"cake",visit:"heart",data:"info",new:"user-plus",meeting:"calendar"};
 const lvOrder={danger:0,warning:1,info:2,success:3};
 
 function toast(text,level,page){
@@ -1124,7 +1116,7 @@ function joinDate(p){
 function buildNotifications(visitsOk){
  const out=[];
  const add=n=>out.push(n);
- const everyone=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ const everyone=[...members.map(x=>({...x,kind:"مخدوم"})),...servants.map(x=>({...x,kind:"خادم"}))];
  const closed=meetings.filter(isMeetingClosed).sort((a,b)=>a.meeting_date<b.meeting_date?-1:1);
  const attBy={};
  attendance.forEach(a=>{(attBy[a.member_id]=attBy[a.member_id]||new Set()).add(a.meeting_id);});
@@ -1145,14 +1137,11 @@ function buildNotifications(visitsOk){
  if(s3.length)add({cat:"absence",level:"danger",title:"غياب 3 اجتماعات متتالية أو أكثر ("+s3.length+")",text:"هؤلاء يحتاجون افتقاداً عاجلاً.",items:s3.map(line),page:"visits",btn:"فتح الافتقاد"});
  if(s2.length)add({cat:"absence",level:"warning",title:"غياب اجتماعين متتاليين ("+s2.length+")",text:"يُفضّل التواصل معهم قبل أن يتحول الغياب إلى عادة.",items:s2.map(line),page:"visits",btn:"فتح الافتقاد"});
 
- /* غائبون لم يتم التواصل معهم */
- const nc=streaks.filter(x=>x.kind==="عضو").filter(x=>{
-  const st=followFor(x.id)?.status||"لم يتم التواصل";
-  return st==="لم يتم التواصل"||st==="يحتاج متابعة مرة أخرى";
- });
- if(nc.length)add({cat:"follow",level:"warning",title:"أعضاء غائبون لم يتم التواصل معهم ("+nc.length+")",text:"حالة المتابعة لهم «لم يتم التواصل» أو «يحتاج متابعة مرة أخرى».",items:nc.map(x=>x.full_name+" — "+(followFor(x.id)?.status||"لم يتم التواصل")),page:"followups",btn:"فتح المتابعة"});
- const again=members.filter(x=>followFor(x.id)?.status==="يحتاج متابعة مرة أخرى");
- if(again.length)add({cat:"follow",level:"warning",title:"أعضاء يحتاجون متابعة مرة أخرى ("+again.length+")",text:"تم التواصل معهم سابقاً وما زالوا يحتاجون متابعة.",items:again.map(x=>x.full_name),page:"followups",btn:"فتح المتابعة"});
+ /* غائبون ولم يتم افتقادهم هذا الشهر */
+ if(visitsOk){
+  const nv=streaks.filter(x=>!visits[x.id]);
+  if(nv.length)add({cat:"visit",level:"warning",title:"غائبون لم يتم افتقادهم هذا الشهر ("+nv.length+")",text:"غابوا اجتماعين متتاليين أو أكثر ولم يُسجَّل افتقادهم هذا الشهر.",items:nv.map(line),page:"visits",btn:"فتح الافتقاد"});
+ }
 
  /* إحصائيات آخر اجتماع */
  if(closed.length){
@@ -1162,16 +1151,16 @@ function buildNotifications(visitsOk){
    return {mm,ss,mr:members.length?Math.round(mm/members.length*100):0,sr:servants.length?Math.round(ss/servants.length*100):0};
   };
   const last=closed[closed.length-1],l=stat(last);
-  let text="حضر "+l.mm+" من "+members.length+" عضو ("+l.mr+"%)، و"+l.ss+" من "+servants.length+" خادم ("+l.sr+"%).";
+  let text="حضر "+l.mm+" من "+members.length+" مخدوم ("+l.mr+"%)، و"+l.ss+" من "+servants.length+" خادم ("+l.sr+"%).";
   let level="info";
   if(closed.length>1){
    const diff=l.mr-stat(closed[closed.length-2]).mr;
-   if(diff!==0)text+=" "+(diff>0?"ارتفعت":"انخفضت")+" نسبة حضور الأعضاء "+Math.abs(diff)+" نقطة عن الاجتماع السابق.";
+   if(diff!==0)text+=" "+(diff>0?"ارتفعت":"انخفضت")+" نسبة حضور المخدومين "+Math.abs(diff)+" نقطة عن الاجتماع السابق.";
    if(diff<=-15)level="warning";else if(diff>=10)level="success";
   }
   add({cat:"stats",level,title:"إحصائيات آخر اجتماع ("+last.meeting_date+")",text,page:"reports",btn:"فتح التقارير"});
   const recent=closed.slice(-4),avg=Math.round(recent.reduce((a,m)=>a+stat(m).mr,0)/recent.length);
-  add({cat:"stats",level:"info",title:"متوسط حضور الأعضاء في آخر "+recent.length+" اجتماعات: "+avg+"%",text:"محسوب من نسبة الأعضاء الحاليين الذين حضروا كل اجتماع.",page:"reports",btn:"فتح التقارير"});
+  add({cat:"stats",level:"info",title:"متوسط حضور المخدومين في آخر "+recent.length+" اجتماعات: "+avg+"%",text:"محسوب من نسبة المخدومين الحاليين الذين حضروا كل اجتماع.",page:"reports",btn:"فتح التقارير"});
  }else{
   add({cat:"stats",level:"info",title:"لا توجد اجتماعات منتهية بعد",text:"ستظهر الإحصائيات والغياب بعد انتهاء أول اجتماع."});
  }
@@ -1208,7 +1197,7 @@ function buildNotifications(visitsOk){
  }else{
   add({cat:"birthday",level:"info",
    title:"شهر "+mname+": لا يوجد أعياد ميلاد",
-   text:"لا أحد من الأعضاء أو الخدام عيد ميلاده في شهر "+mname+".",
+   text:"لا أحد من المخدومين أو الخدام عيد ميلاده في شهر "+mname+".",
    page:"birthdays",btn:"فتح أعياد الميلاد"});
  }
 
@@ -1216,10 +1205,10 @@ function buildNotifications(visitsOk){
  if(visitsOk&&everyone.length){
   const todo=everyone.filter(x=>!visits[x.id]);
   if(todo.length)add({cat:"visit",level:todo.length>everyone.length/2?"warning":"info",title:"لم يتم افتقاد "+todo.length+" من "+everyone.length,text:"تم افتقاد "+(everyone.length-todo.length)+" حتى الآن.",items:todo.map(x=>x.full_name+" ("+x.kind+")"),page:"visits",btn:"فتح الافتقاد"});
-  else add({cat:"visit",level:"success",title:"تم افتقاد الجميع",text:"كل الأعضاء والخدام تم افتقادهم.",page:"visits",btn:"فتح الافتقاد"});
+  else add({cat:"visit",level:"success",title:"تم افتقاد الجميع",text:"كل المخدومين والخدام تم افتقادهم.",page:"visits",btn:"فتح الافتقاد"});
  }
 
- /* أعضاء جدد */
+ /* مخدومين جدد */
  const weekAgo=Date.now()-7*86400000;
  const fresh=everyone.filter(x=>x.joined&&new Date(x.joined).getTime()>weekAgo);
  if(fresh.length)add({cat:"new",level:"info",title:"انضم خلال آخر 7 أيام ("+fresh.length+")",text:"رحّب بهم وتأكد من اكتمال بياناتهم.",items:fresh.map(x=>x.full_name+" ("+x.kind+")")});
@@ -1227,13 +1216,15 @@ function buildNotifications(visitsOk){
  /* بيانات ناقصة */
  const noBirth=everyone.filter(x=>!x.birth_date).length;
  const noArea=everyone.filter(x=>!x.residential_area).length;
+ const noMetro=everyone.filter(x=>!x.nearest_metro).length;
  const noYear=members.filter(x=>!x.study_year).length;
- if(noBirth||noArea||noYear){
+ if(noBirth||noArea||noMetro||noYear){
   const parts=[];
   if(noBirth)parts.push(noBirth+" بدون تاريخ ميلاد");
-  if(noArea)parts.push(noArea+" بدون منطقة سكن");
-  if(noYear)parts.push(noYear+" عضو بدون فرقة دراسية");
-  add({cat:"data",level:"info",title:"بيانات ناقصة",text:parts.join("، ")+". يمكنك استكمالها من زر «تعديل» في صفحة الأعضاء أو الخدام.",page:"members",btn:"فتح الأعضاء"});
+  if(noArea)parts.push(noArea+" بدون عنوان");
+  if(noMetro)parts.push(noMetro+" بدون محطة مترو");
+  if(noYear)parts.push(noYear+" مخدوم بدون فرقة دراسية");
+  add({cat:"data",level:"info",title:"بيانات ناقصة",text:parts.join("، ")+". يمكنك استكمالها من زر «تعديل» في صفحة المخدومين أو الخدام.",page:"members",btn:"فتح المخدومين"});
  }
  return out.sort((a,b)=>lvOrder[a.level]-lvOrder[b.level]);
 }
@@ -1242,13 +1233,12 @@ async function loadNotifications(silent){
  try{
   await ensurePeople();
   await fetchAttendanceData();
-  try{const f=await supabaseClient.from("followups").select("*");if(!f.error)followups=f.data||[];}catch(e){}
   let visitsOk=false;
   try{
    const r=await supabaseClient.rpc("get_visits");
    if(!r.error){
     const rows=typeof r.data==="string"?JSON.parse(r.data):(r.data||[]);
-    visits={};rows.forEach(v=>{visits[v.profile_id]=v.visited_at;});visitsOk=true;
+    setVisitsFromRows(rows);visitsOk=true;
    }
   }catch(e){}
   notifs=buildNotifications(visitsOk);
@@ -1281,7 +1271,18 @@ function renderNotifications(){
 
 /* الافتقاد */
 let visits={};
-const canVisit=()=>["system_admin","servant_admin","followup"].includes(currentProfile?.role);
+const canVisit=()=>isStaff();
+const canUndoVisit=()=>currentProfile?.role==="system_admin";
+function cairoMonthKey(d){
+ const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Cairo",year:"numeric",month:"2-digit"}).formatToParts(new Date(d));
+ return parts.find(x=>x.type==="year").value+"-"+parts.find(x=>x.type==="month").value;
+}
+/* الافتقاد يتجدد تلقائياً أول كل شهر: نحسب فقط افتقاد الشهر الحالي */
+function setVisitsFromRows(rows){
+ const cur=cairoMonthKey(new Date());
+ visits={};
+ rows.forEach(v=>{if(v.visited_at&&cairoMonthKey(v.visited_at)===cur)visits[v.profile_id]=v.visited_at;});
+}
 function fmtDate(iso){
  return new Date(iso).toLocaleDateString("ar-EG",{timeZone:"Africa/Cairo",year:"numeric",month:"long",day:"numeric"});
 }
@@ -1292,34 +1293,111 @@ async function loadVisits(){
   const r=await supabaseClient.rpc("get_visits");
   if(r.error)throw r.error;
   const rows=typeof r.data==="string"?JSON.parse(r.data):(r.data||[]);
-  visits={};
-  rows.forEach(v=>{visits[v.profile_id]=v.visited_at;});
+  setVisitsFromRows(rows);
+  await loadVisitNotes();
   renderVisits();
  }catch(e){msg("تعذر تحميل الافتقاد: "+e.message,true);}
+}
+let visitNotes={},visitDrafts={};
+async function loadVisitNotes(){
+ try{
+  const r=await supabaseClient.rpc("get_visit_notes");
+  if(r.error)throw r.error;
+  const rows=rpcJson(r.data)||[];
+  visitNotes={};
+  rows.forEach(v=>{visitNotes[v.profile_id]=v.notes||"";});
+ }catch(e){/* قبل تشغيل SQL الملاحظات تبقى فاضية */}
+}
+async function saveVisitNote(id,silent){
+ const ta=$("vn-"+id);
+ if(!ta)return;
+ const notes=ta.value.trim();
+ const r=await supabaseClient.rpc("set_visit_note",{p_profile_id:id,p_notes:notes});
+ if(r.error)throw r.error;
+ const res=rpcJson(r.data);
+ if(!res?.success)throw new Error(res?.message||"تعذر حفظ الملاحظة");
+ visitNotes[id]=notes;delete visitDrafts[id];
+ if(!silent)msg("تم حفظ الملاحظة");
+}
+async function onSaveNote(id){
+ try{await saveVisitNote(id);}catch(e){msg("تعذر حفظ الملاحظة: "+e.message,true);}
+}
+const visitOpen=new Set();
+function visitToggle(el){if(el.open)visitOpen.add(el.dataset.k);else visitOpen.delete(el.dataset.k);}
+const metroKey=x=>(x.nearest_metro||"").trim()||"__none";
+function groupByMetro(list){
+ const map=new Map();
+ list.forEach(x=>{
+  const k=metroKey(x);
+  if(!map.has(k))map.set(k,{key:k,label:k==="__none"?"بدون محطة مترو":k,items:[]});
+  map.get(k).items.push(x);
+ });
+ const groups=[...map.values()];
+ groups.forEach(g=>g.items.sort((a,b)=>(a.full_name||"").localeCompare(b.full_name||"","ar")));
+ return groups.sort((a,b)=>(a.key==="__none")-(b.key==="__none")||b.items.length-a.items.length||a.label.localeCompare(b.label,"ar"));
 }
 function renderVisits(){
  const q=($("visitSearch").value||"").trim().toLowerCase();
  const kindF=$("visitKind").value;
- const full=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ const full=[...members.map(x=>({...x,kind:"مخدوم"})),...servants.map(x=>({...x,kind:"خادم"}))];
  $("visitDoneCount").textContent=full.filter(x=>visits[x.id]).length;
  $("visitTodoCount").textContent=full.filter(x=>!visits[x.id]).length;
- const all=full.filter(x=>(kindF==="all"||x.kind===kindF)&&((x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q)));
+
+ /* فلتر المحطات (مع الحفاظ على الاختيار الحالي) */
+ const sel=$("visitArea");
+ const prev=sel.value;
+ sel.innerHTML='<option value="all">كل المحطات</option>'+groupByMetro(full).map(g=>`<option value="${safe(g.key)}">${safe(g.label)} (${g.items.length})</option>`).join("");
+ sel.value=[...sel.options].some(o=>o.value===prev)?prev:"all";
+ const stF=sel.value;
+
+ const all=full.filter(x=>(kindF==="all"||x.kind===kindF)
+  &&(stF==="all"||metroKey(x)===stF)
+  &&((x.full_name||"").toLowerCase().includes(q)||(x.phone||"").includes(q)
+   ||(x.residential_area||"").toLowerCase().includes(q)||(x.nearest_metro||"").toLowerCase().includes(q)));
  const todo=all.filter(x=>!visits[x.id]);
  const done=all.filter(x=>visits[x.id]).sort((a,b)=>new Date(visits[b.id])-new Date(visits[a.id]));
- const phone=x=>x.phone?`<a href="tel:${safe(x.phone)}">${ico("phone")}${safe(x.phone)}</a>`:"—";
- $("visitTodoTable").innerHTML=todo.map(x=>`<tr>
-  <td>${canVisit()?`<button onclick="markVisit('${x.id}',true)">${ico("check")}تم الافتقاد</button>`:"—"}</td>
-  <td>${safe(x.full_name)}</td><td><span class="badge">${x.kind}</span></td><td>${phone(x)}</td></tr>`).join("")||'<tr><td colspan="4">لا يوجد أحد</td></tr>';
- $("visitDoneTable").innerHTML=done.map(x=>`<tr>
-  <td>${canVisit()?`<button class="secondary" onclick="markVisit('${x.id}',false)">${ico("rotate-ccw")}إرجاع</button>`:"—"}</td>
-  <td>${safe(x.full_name)}</td><td><span class="badge">${x.kind}</span></td><td>${phone(x)}</td>
-  <td><strong>${safe(fmtDate(visits[x.id]))}</strong></td></tr>`).join("")||'<tr><td colspan="5">لا يوجد أحد</td></tr>';
+
+ const line=(label,val)=>`<div><span class="muted">${label}:</span> ${val}</div>`;
+ const card=(x,isDone)=>`<div class="card">
+  <div class="row"><strong>${safe(x.full_name)}</strong><span class="badge">${x.kind}</span></div>
+  ${line("الموبايل",x.phone?`<a href="tel:${safe(x.phone)}">${ico("phone")}${safe(x.phone)}</a>`:"—")}
+  ${line("تاريخ الميلاد",x.birth_date?safe(fmtDate(x.birth_date)):"—")}
+  ${line(x.kind==="مخدوم"?"الفرقة الدراسية":"المسؤولية",safe((x.kind==="مخدوم"?x.study_year:x.responsibility)||"—"))}
+  ${line("فرقة كام / خريج",safe(x.education_or_age||"—"))}
+  ${line("العنوان بالتفصيل",safe(x.residential_area||"—"))}
+  ${line("أقرب محطة مترو",safe(x.nearest_metro||"—"))}
+  ${isDone?line("تاريخ الافتقاد",`<strong>${safe(fmtDate(visits[x.id]))}</strong>`):""}
+  <div class="vnote"><textarea id="vn-${x.id}" rows="2" placeholder="ملاحظات الافتقاد (مثلاً: اتصلت ولم يرد - يحتاج زيارة)" oninput="visitDrafts['${x.id}']=this.value">${safe(visitDrafts[x.id]??visitNotes[x.id]??"")}</textarea>
+   <button class="secondary" onclick="onSaveNote('${x.id}')">${ico("check")}حفظ الملاحظة</button></div>
+  <div style="margin-top:8px">${isDone
+   ?(canUndoVisit()?`<button class="secondary" onclick="markVisit('${x.id}',false)">${ico("rotate-ccw")}إرجاع</button>`:"")
+   :(canVisit()?`<button onclick="markVisit('${x.id}',true)">${ico("check")}تم الافتقاد</button>`:"")}</div>
+ </div>`;
+ const build=(list,isDone)=>{
+  if(!list.length)return '<p class="muted">لا يوجد أحد</p>';
+  const pre=isDone?"done|":"todo|";
+  return groupByMetro(list).map(g=>{
+   const k=pre+g.key;
+   const open=(visitOpen.has(k)||q)?" open":"";
+   return `<details data-k="${safe(k)}"${open} ontoggle="visitToggle(this)">
+    <summary style="cursor:pointer;background:#f9e8ec;color:#7a1424;font-weight:bold;padding:12px;border-radius:10px;margin:8px 0">${ico("map-pin")} ${g.key==="__none"?safe(g.label):"محطة "+safe(g.label)} — ${g.items.length}</summary>
+    ${g.items.map(x=>card(x,isDone)).join("")}
+   </details>`;
+  }).join("");
+ };
+ $("visitTodoList").innerHTML=build(todo,false);
+ $("visitDoneList").innerHTML=build(done,true);
 }
 async function markVisit(id,visited){
+ if(!visited&&!canUndoVisit()){msg("الإرجاع متاح لمسؤول النظام فقط",true);return;}
  const p=[...members,...servants].find(x=>x.id===id);
  const name=p?.full_name||"";
  if(!visited&&!confirm("إرجاع "+name+" إلى قائمة لم يتم الافتقاد؟"))return;
  try{
+  const ta=document.getElementById("vn-"+id);
+  if(visited&&ta&&ta.value.trim()!==(visitNotes[id]||"")){
+   try{await saveVisitNote(id,true);}catch(e){msg("تعذر حفظ الملاحظة: "+e.message,true);}
+  }
   const r=await supabaseClient.rpc("set_visit",{p_profile_id:id,p_visited:visited});
   if(r.error)throw r.error;
   const res=typeof r.data==="string"?JSON.parse(r.data):r.data;
@@ -1332,7 +1410,7 @@ async function markVisit(id,visited){
 
 /* أعياد الميلاد */
 function renderBirthdays(){
- const all=[...members.map(x=>({...x,kind:"عضو"})),...servants.map(x=>({...x,kind:"خادم"}))];
+ const all=[...members.map(x=>({...x,kind:"مخدوم"})),...servants.map(x=>({...x,kind:"خادم"}))];
  const t=new Date();
  const start=new Date(t.getFullYear(),t.getMonth(),t.getDate());
  const upcoming=all.map(p=>{
@@ -1352,7 +1430,6 @@ function renderBirthdays(){
 async function refreshAll(){
  await loadPeople();
  await loadAttendance();
- await loadFollowups();
  renderBirthdays();
  await loadNotifications(true);
 }
@@ -1361,6 +1438,7 @@ async function startApp(){
  if(session)await loadProfile();
  else showAuth();
 }
+fillMetroSelects();
 startApp();
 </script>
 
@@ -1446,7 +1524,7 @@ button[onclick^="logout"]:hover .ic{transform:translateX(-6px)}
 button[onclick*="refresh"],button[onclick^="load"],button[onclick^="refreshAll"]{border-radius:40px}
 button[onclick*="refresh"]:hover .ic,button[onclick^="load"]:hover .ic{transform:rotate(360deg)}
 button[onclick^="markVisit"]:not(.secondary){background:linear-gradient(135deg,#d98a1b,#f2c14e);color:#4a2c00}
-button[onclick^="saveFollowup"],button[onclick^="saveEdit"]{background:linear-gradient(135deg,#2a5fbf,#4f93ef)}
+button[onclick^="saveEdit"]{background:linear-gradient(135deg,#2a5fbf,#4f93ef)}
 button[onclick^="restorePerson"]{background:linear-gradient(135deg,#6a3bb8,#a074ee)}
 button[onclick^="editMember"],button[onclick^="editServant"]{border-radius:30px}
 button[onclick^="calNav"]{border-radius:40px}
@@ -1480,7 +1558,7 @@ button#modalOk{background:linear-gradient(135deg,#1f7a52,#35b37e)}
 /* a color per menu item */
 .nav[data-page=home]{--c:#7a1424}.nav[data-page=notifications]{--c:#e0561f}.nav[data-page=attendance]{--c:#1f8a5b}
 .nav[data-page=calendar]{--c:#2a5fbf}.nav[data-page=members]{--c:#8a3fb8}.nav[data-page=servants]{--c:#b8860b}
-.nav[data-page=reports]{--c:#0f8b9c}.nav[data-page=followups]{--c:#d1366b}.nav[data-page=visits]{--c:#e0457b}
+.nav[data-page=reports]{--c:#0f8b9c}.nav[data-page=visits]{--c:#e0457b}
 .nav[data-page=birthdays]{--c:#f08a00}.nav[data-page=deleted]{--c:#6b6b6b}.nav[data-page=audit]{--c:#3d4a8a}
 .nbadge{animation:beat 1.6s infinite;box-shadow:0 0 0 3px rgba(184,50,50,.25)}
 
@@ -1503,7 +1581,7 @@ th{background:linear-gradient(180deg,var(--pgsoft),#fff);color:var(--pg)}
 #page-members{--pg:#8a3fb8;--pg2:#c58af0;--pgsoft:#f2e8fa}
 #page-servants{--pg:#b8860b;--pg2:#f2c14e;--pgsoft:#fbf2d6}
 #page-reports{--pg:#0f8b9c;--pg2:#4fd0e0;--pgsoft:#dff5f8}
-#page-followups{--pg:#d1366b;--pg2:#ff7aa6;--pgsoft:#fde6ee}
+
 #page-calendar{--pg:#2a5fbf;--pg2:#6fa3ff;--pgsoft:#e4edfd}
 #page-notifications{--pg:#e0561f;--pg2:#ffa066;--pgsoft:#fdeadf}
 #page-visits{--pg:#e0457b;--pg2:#ffb35c;--pgsoft:#fdeaf0}
@@ -1713,7 +1791,7 @@ body:has(#authArea:not(.hidden)) .blob{display:none}
   ["b1","b2","b3"].forEach(function(c){var d=document.createElement("div");d.className="blob "+c;document.body.appendChild(d);});
 
   /* 2) big faded emoji decoration for every page panel */
-  var deco={"home":"🏠","member-home":"🙏","attendance":"✅","members":"👥","servants":"🛡️","reports":"📊","followups":"📞","calendar":"📅","notifications":"🔔","visits":"💗","birthdays":"🎉","audit":"📜","deleted":"🗃️"};
+  var deco={"home":"🏠","member-home":"🙏","attendance":"✅","members":"👥","servants":"🛡️","reports":"📊","calendar":"📅","notifications":"🔔","visits":"💗","birthdays":"🎉","audit":"📜","deleted":"🗃️"};
   Object.keys(deco).forEach(function(k){
     var p=$("page-"+k); if(!p)return;
     var panel=p.querySelector(".panel"); if(panel)panel.setAttribute("data-deco",deco[k]);
@@ -1735,7 +1813,7 @@ body:has(#authArea:not(.hidden)) .blob{display:none}
     var items=root.querySelectorAll(".card,.notif");
     for(var i=0;i<items.length;i++){items[i].style.animationDelay=Math.min(i*45,600)+"ms";}
   }
-  ["presentList","absentList","followList","notifList","birthdayList","deletedList","calDetail"].forEach(function(id){
+  ["presentList","absentList","notifList","birthdayList","deletedList","calDetail"].forEach(function(id){
     var el=$(id); if(!el)return;
     new MutationObserver(function(){stagger(el)}).observe(el,{childList:true});
   });
@@ -1848,6 +1926,58 @@ body:has(#authArea:not(.hidden)) .blob{display:none}
  #authArea button:hover{transform:none!important}
  #appArea>header .logo.sm{width:58px;height:77px}
 }
+</style>
+<style id="mobile-bottom-nav">
+/* =====================================================================
+   PHONES ONLY (max-width:768px): page menu becomes a bottom tab bar
+   (like Facebook). Laptops keep the side menu exactly as before.
+   ===================================================================== */
+@media(max-width:768px){
+ .layout{display:block;margin-top:14px}
+ #sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:40;margin:0;
+  display:flex;flex-direction:row;align-items:stretch;gap:2px;
+  padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+  border-radius:20px 20px 0 0;border:0;border-top:1px solid rgba(168,137,69,.35);
+  background:rgba(255,255,255,.98);box-shadow:0 -8px 24px -10px rgba(122,20,36,.4);
+  max-height:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ #sidebar::-webkit-scrollbar{display:none}
+ #sidebar h3{display:none}
+ #sidebar button.nav{position:relative;flex:0 0 auto;width:72px;min-height:56px;margin:0;padding:4px 2px 3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:10.5px;line-height:1.25;font-weight:600;white-space:normal;text-align:center;
+  background:transparent;border:0;box-shadow:none;border-radius:14px;color:#6a4a50;transform:none}
+ #sidebar button.nav .ic{width:30px;height:30px;padding:6px;margin:0 0 2px;border-radius:12px;background:transparent;color:var(--c)}
+ #sidebar button.nav:hover{transform:none;background:transparent}
+ #sidebar button.nav.active{background:color-mix(in srgb,var(--c) 10%,#fff)!important;color:var(--c);box-shadow:none;transform:none;font-weight:800}
+ #sidebar button.nav.active .ic{background:var(--c);color:#fff}
+ #sidebar .nbadge{position:absolute;top:1px;left:12px;margin:0}
+ /* keep content and toasts clear of the bar */
+ body:has(#appArea:not(.hidden) #sidebar:not(.hidden)) .container{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+ #toasts{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+<style id="people-groups">
+/* مجموعات + أسماء قابلة للفتح (المخدومين والخدام) */
+.grp{background:#fff;border:1px solid #eadcc0;border-radius:16px;margin:12px 0;overflow:hidden}
+.grp>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;
+ padding:13px 14px;background:var(--pgsoft,#f9e8ec);color:var(--pg,#7a1424);font-weight:800;font-size:16px}
+.grp>summary::-webkit-details-marker,.person>summary::-webkit-details-marker{display:none}
+.grp-b{padding:4px 10px 10px}
+.person{border-bottom:1px dashed #eadcc0}
+.person:last-child{border-bottom:0}
+.person>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;
+ padding:12px 6px;font-weight:700;font-size:16px}
+.person>summary::after{content:"▾";color:var(--pg,#7a1424);transition:transform .2s;flex:none}
+.person[open]>summary{color:var(--pg,#7a1424)}
+.person[open]>summary::after{transform:rotate(180deg)}
+.person .card{margin:2px 0 12px}
+.person .pact{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.person .pact button{flex:1;min-width:110px;margin:0}
+</style>
+<style id="visit-notes">
+.vnote{margin-top:10px}
+.vnote textarea{width:100%;min-height:64px;box-sizing:border-box;resize:vertical}
+.vnote button{margin-top:6px}
 </style>
 </body>
 </html>
